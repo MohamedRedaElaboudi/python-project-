@@ -9,8 +9,8 @@ import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
-import { usePathname } from '../../hooks/use-pathname';
-import RouterLink from '../../components/router-link';
+import { usePathname } from 'src/routes';
+import { RouterLink } from 'src/routes/components';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -150,7 +150,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                   <ListItemButton
                     disableGutters
                     component={RouterLink}
-                    to={item.path}
+                    href={item.path}
                     sx={[
                       (theme) => ({
                         pl: 2,

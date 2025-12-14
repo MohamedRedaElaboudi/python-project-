@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerStudent } from "../../api/auth";
@@ -214,11 +213,8 @@ export default function StudentRegister() {
           onChange={(e) => setForm({ ...form, niveau: e.target.value })}
         >
           <option value="">-- Sélectionner le niveau --</option>
-          {/* eslint-disable-next-line react/no-unescaped-entities */}
-          <option value="1ere annee">1&egrave;re ann&eacute;e</option>
-          {/* eslint-disable-next-line react/no-unescaped-entities */}
+          <option value="1ere annee">First year</option>
           <option value="2eme annee">2&egrave;me ann&eacute;e</option>
-          {/* eslint-disable-next-line react/no-unescaped-entities */}
           <option value="3eme annee">3&egrave;me ann&eacute;e</option>
         </TextField>
 

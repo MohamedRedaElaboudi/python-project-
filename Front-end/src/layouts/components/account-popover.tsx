@@ -12,8 +12,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
-import { useRouter } from '../../hooks/use-router';
-import { usePathname } from '../../hooks/use-pathname';
+import { useRouter, usePathname } from 'src/routes';
 
 import { _myAccount } from 'src/_mock';
 
