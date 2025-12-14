@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useRouter } from 'src/routes';
+import { useRouter } from '../../hooks/use-router';
 
 import { Iconify } from 'src/components/iconify';
 

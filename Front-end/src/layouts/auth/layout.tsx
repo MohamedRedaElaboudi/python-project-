@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 
-import { RouterLink } from 'src/routes/components';
+import RouterLink from '../../components/router-link';
 
 import { Logo } from 'src/components/logo';
 
@@ -58,7 +58,7 @@ export function AuthLayout({
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
           {/** @slot Help link */}
-          <Link href="#" component={RouterLink} color="inherit" sx={{ typography: 'subtitle2' }}>
+          <Link to="#" component={RouterLink} color="inherit" sx={{ typography: 'subtitle2' }}>
             Need help?
           </Link>
         </Box>

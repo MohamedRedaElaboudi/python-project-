@@ -3,7 +3,7 @@ import type { BoxProps } from '@mui/material/Box';
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 
-import { RouterLink } from 'src/routes/components';
+import RouterLink from '../../components/router-link';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -17,7 +17,7 @@ export function CartIcon({ totalItems, sx, ...other }: CartIconProps) {
   return (
     <Box
       component={RouterLink}
-      href="#"
+      to="#"
       sx={[
         (theme) => ({
           right: 0,
