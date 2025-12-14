@@ -12,7 +12,9 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 // ----------------------------------------------------------------------
 
+// J'ai ajouté AuditPage ici en Lazy loading pour être cohérent avec les autres pages
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
+export const AuditPage = lazy(() => import('src/pages/audit')); 
 export const BlogPage = lazy(() => import('src/pages/blog'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
@@ -53,6 +55,7 @@ export const routesSection: RouteObject[] = [
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
+      { path: 'audit', element: <AuditPage /> }, // La nouvelle route ajoutée ici
     ],
   },
   {
