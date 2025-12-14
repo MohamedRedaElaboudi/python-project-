@@ -19,7 +19,13 @@ export const BlogPage = lazy(() => import('src/pages/blog'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
+
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
+
+
+export const SallesPage = lazy(() => import('src/pages/SallesPage'));
+export const SoutenancesPage = lazy(() => import('src/pages/SoutenancesPage'));
+export const UtilisateursPage = lazy(() => import('src/pages/UtilisateursPage'));
 
 const renderFallback = () => (
   <Box
@@ -41,8 +47,7 @@ const renderFallback = () => (
   </Box>
 );
 
-export const routesSection: RouteObject[] = [
-  {
+export const routesSection: RouteObject[] = [{
     element: (
       <DashboardLayout>
         <Suspense fallback={renderFallback()}>
@@ -50,14 +55,23 @@ export const routesSection: RouteObject[] = [
         </Suspense>
       </DashboardLayout>
     ),
+
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
+<<<<<<< HEAD
       { path: 'audit', element: <AuditPage /> }, // La nouvelle route ajoutée ici
+=======
+    { path: 'salles', element: <SallesPage /> },
+    { path: 'soutenances', element: <SoutenancesPage /> },
+    { path: 'utilisateurs', element: <UtilisateursPage /> },
+>>>>>>> imane
     ],
   },
+
+
   {
     path: 'sign-in',
     element: (

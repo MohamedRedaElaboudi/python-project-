@@ -1,9 +1,13 @@
 import { Label } from 'src/components/label';
 import { SvgColor } from 'src/components/svg-color';
+import HomeIcon from '@mui/icons-material/Home';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 // ----------------------------------------------------------------------
 
-const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} />;
+const icon = (name: string) => (
+  <SvgColor src={`/assets/icons/navbar/${name}.svg`} />
+);
 
 export type NavItem = {
   title: string;
@@ -12,27 +16,36 @@ export type NavItem = {
   info?: React.ReactNode;
 };
 
-export const navData = [
+export const navData: NavItem[] = [
   {
     title: 'Dashboard',
     path: '/',
     icon: icon('ic-analytics'),
   },
+
+  // ================== ADMIN ==================
   {
-    title: 'User',
-    path: '/user',
-    icon: icon('ic-user'),
+    title: 'Salles',
+    path: '/salles',
+    icon:  <HomeIcon sx={{ width: 24, height: 24 }} />, // ou ic-building si tu as
   },
   {
-    title: 'Product',
-    path: '/products',
-    icon: icon('ic-cart'),
+    title: 'Soutenances',
+    path: '/soutenances',
+    icon: <CalendarMonthIcon sx={{ width: 24, height: 24 }} />,
+  },
+  {
+    title: 'Utilisateurs',
+    path: '/utilisateurs',
+    icon: icon('ic-user'),
     info: (
-      <Label color="error" variant="inverted">
-        +3
+      <Label color="info" variant="inverted">
+        Admin
       </Label>
     ),
   },
+
+  // ================== AUTRES ==================
   {
     title: 'Blog',
     path: '/blog',
@@ -42,10 +55,5 @@ export const navData = [
     title: 'Sign in',
     path: '/sign-in',
     icon: icon('ic-lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic-disabled'),
   },
 ];
