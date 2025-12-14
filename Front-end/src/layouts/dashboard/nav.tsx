@@ -15,7 +15,7 @@ import { RouterLink } from 'src/routes/components';
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { NavUpgrade } from '../components/nav-upgrade';
+
 import { WorkspacesPopover } from '../components/workspaces-popover';
 
 import type { NavItem } from '../nav-config-dashboard';
@@ -29,9 +29,10 @@ export type NavContentProps = {
     topArea?: React.ReactNode;
     bottomArea?: React.ReactNode;
   };
-  workspaces: WorkspacesPopoverProps['data'];
+  workspaces?: WorkspacesPopoverProps['data']; // ← optionnel
   sx?: SxProps<Theme>;
 };
+
 
 export function NavDesktop({
   sx,
@@ -116,7 +117,10 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
 
       {slots?.topArea}
 
-      <WorkspacesPopover data={workspaces} sx={{ my: 2 }} />
+      {workspaces && workspaces.length > 0 && (
+  <WorkspacesPopover data={workspaces} sx={{ my: 2 }} />
+)}
+
 
       <Scrollbar fillContent>
         <Box
@@ -188,7 +192,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
 
       {slots?.bottomArea}
 
-      <NavUpgrade />
+
     </>
   );
 }
