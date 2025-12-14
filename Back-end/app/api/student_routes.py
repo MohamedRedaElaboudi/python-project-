@@ -25,7 +25,7 @@ def dashboard():
 
     return jsonify({
         "rapport": dict(rapport) if rapport else None,
-        "soutenance": dict(soutenance) if soutenance else None
+        "soutenance": soutenance.to_dict() if soutenance else None
     })
 
 
@@ -52,4 +52,27 @@ def student_soutenance():
     student_id = int(get_jwt_identity())
 
     soutenance = SoutenanceDAO.get_by_student(student_id)
-    return jsonify(dict(soutenance)) if soutenance else jsonify(None)
+
+    if not soutenance:
+        return jsonify(None), 200
+
+    return jsonify({
+        # 🔹 date + heure combinées pour le frontend
+        "date_debut": f"{soutenance.date_soutenance} {soutenance.heure_debut}",
+
+        "duree_minutes": soutenance.duree_minutes,
+        "statut": soutenance.statut,
+
+        # 🔹 salle
+        "salle": soutenance.salle.name if soutenance.salle else None,
+
+        # 🔹 jury (optionnel mais prêt)
+        "jury": [
+            {
+                "id": j.teacher.id,
+                "nom": f"{j.teacher.prenom} {j.teacher.name}",
+                "role": j.role
+            }
+            for j in soutenance.juries
+        ]
+    }), 200

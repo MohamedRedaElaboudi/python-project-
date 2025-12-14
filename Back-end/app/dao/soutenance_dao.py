@@ -1,25 +1,17 @@
-from sqlalchemy import text
-from ..extensions import db
-
+from ..models import Soutenance, Jury
+from sqlalchemy.orm import joinedload
 
 class SoutenanceDAO:
 
     @staticmethod
     def get_by_student(student_id):
-        query = text("""
-            SELECT
-                s.id,
-                s.date_debut,
-                s.duree_minutes,
-                s.salle,
-                s.statut
-            FROM soutenances s
-            JOIN rapports r ON r.id = s.rapport_id
-            WHERE r.auteur_id = :sid
-            ORDER BY r.created_at DESC
-            LIMIT 1
-        """)
-
-        return db.session.execute(
-            query, {"sid": student_id}
-        ).mappings().first()
+        return (
+            Soutenance.query
+            .options(
+                joinedload(Soutenance.salle),
+                joinedload(Soutenance.juries).joinedload(Jury.teacher)
+            )
+            .filter_by(student_id=student_id)
+            .order_by(Soutenance.date_soutenance.desc())
+            .first()
+        )

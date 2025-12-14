@@ -56,3 +56,97 @@ class Student(db.Model):
         "User",
         back_populates="student_profile"
     )
+class Salle(db.Model):
+    __tablename__ = "salles"
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(150), nullable=False)
+
+    def __repr__(self):
+        return f"<Salle {self.name}>"
+class Jury(db.Model):
+    __tablename__ = "juries"
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    soutenance_id = db.Column(db.BigInteger, db.ForeignKey("soutenances.id", ondelete="CASCADE"), nullable=False)
+    teacher_id = db.Column(db.BigInteger, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    role = db.Column(db.Enum("president", "member", "supervisor"), default="member")
+
+    # ✅ RELATION PROPRE
+    soutenance = db.relationship(
+        "Soutenance",
+        back_populates="juries"
+    )
+
+    teacher = db.relationship("User", backref="jury_assignments")
+
+class Soutenance(db.Model):
+    __tablename__ = "soutenances"
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+
+    student_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("students.user_id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    salle_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("salles.id"),
+        nullable=True
+    )
+
+    date_soutenance = db.Column(db.Date, nullable=False)
+    heure_debut = db.Column(db.Time, nullable=False)
+    duree_minutes = db.Column(db.Integer, default=15)
+
+    statut = db.Column(
+        db.Enum("planned", "done", "cancelled"),
+        default="planned"
+    )
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # relations
+    salle = db.relationship("Salle", backref="soutenances")
+    student = db.relationship("Student", backref="soutenances")
+
+    # 🔥 IMPORTANT : relation inverse avec Jury
+    juries = db.relationship(
+        "Jury",
+        back_populates="soutenance",
+        cascade="all, delete-orphan"
+    )
+
+    @property
+    def etudiant(self):
+        return self.student.user if self.student else None
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "date_debut": f"{self.date_soutenance} {self.heure_debut}",
+            "date_soutenance": self.date_soutenance.isoformat(),
+            "heure_debut": self.heure_debut.strftime("%H:%M"),
+            "duree_minutes": self.duree_minutes,
+            "statut": self.statut,
+            "salle": self.salle.name if self.salle else None,
+            "jury": [
+                {
+                    "id": j.id,
+                    "role": j.role,
+                    "teacher": {
+                        "id": j.teacher.id,
+                        "nom": j.teacher.name,
+                        "prenom": j.teacher.prenom,
+                        "email": j.teacher.email,
+                    }
+                }
+                for j in self.juries
+            ]
+        }
+
+    def __repr__(self):
+        return f"<Soutenance {self.id} - {self.statut}>"

@@ -6,6 +6,8 @@ import {
   Typography,
   Chip,
   Button,
+  Divider,
+  Stack,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 
@@ -86,12 +88,7 @@ export default function StudentDashboard() {
             Hi, Welcome back 👋
           </Typography>
 
-          <Typography
-            sx={{
-              color: (theme) =>
-                theme.palette.mode === "dark" ? "#9CA3AF" : "#6B7280",
-            }}
-          >
+          <Typography color="text.secondary">
             {user?.prenom} {user?.name}
           </Typography>
         </Box>
@@ -101,14 +98,7 @@ export default function StudentDashboard() {
       <Grid container spacing={3}>
         {/* ===== RAPPORT ===== */}
         <Grid xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              backgroundColor: (theme) =>
-                theme.palette.mode === "dark" ? "#020617" : "#F9FAFB",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
-            }}
-          >
+          <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">📄 Mon Rapport</Typography>
 
@@ -118,15 +108,7 @@ export default function StudentDashboard() {
                     {rapport.titre}
                   </Typography>
 
-                  <Typography
-                    sx={{
-                      mt: 0.5,
-                      color: (theme) =>
-                        theme.palette.mode === "dark"
-                          ? "#9CA3AF"
-                          : "#6B7280",
-                    }}
-                  >
+                  <Typography color="text.secondary">
                     Date :{" "}
                     {new Date(rapport.created_at).toLocaleDateString()}
                   </Typography>
@@ -147,15 +129,7 @@ export default function StudentDashboard() {
                   </Button>
                 </>
               ) : (
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "#9CA3AF"
-                        : "#6B7280",
-                  }}
-                >
+                <Typography color="text.secondary">
                   Aucun rapport soumis
                 </Typography>
               )}
@@ -165,44 +139,65 @@ export default function StudentDashboard() {
 
         {/* ===== SOUTENANCE ===== */}
         <Grid xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              backgroundColor: (theme) =>
-                theme.palette.mode === "dark" ? "#020617" : "#F3F4F6",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
-            }}
-          >
+          <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">📅 Soutenance</Typography>
 
               {soutenance ? (
-                <>
-                  <Typography mt={1}>
+                <Stack spacing={1} mt={1}>
+                  <Typography>
                     <b>Date :</b>{" "}
                     {new Date(soutenance.date_debut).toLocaleString()}
                   </Typography>
 
                   <Typography>
-                    <b>Salle :</b> {soutenance.salle}
+                    <b>Salle :</b> {soutenance.salle || "—"}
                   </Typography>
 
-                  <Chip
-                    sx={{ mt: 2 }}
-                    label={soutenance.statut}
-                    color="info"
-                  />
-                </>
+                  <Chip label={soutenance.statut} color="info" />
+
+                  {/* ✅ AJOUT JURY */}
+                  <Divider sx={{ my: 1 }} />
+
+                  <Typography fontWeight="bold">
+                    👨‍🏫 Jury
+                  </Typography>
+
+                  {soutenance.jury && soutenance.jury.length > 0 ? (
+                    soutenance.jury.map((j: any) => (
+                      <Box
+                        key={j.id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          backgroundColor: "#F9FAFB",
+                          p: 1.2,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Typography>{j.nom}</Typography>
+
+                        <Chip
+                          size="small"
+                          label={
+                            j.role === "president"
+                              ? "Président"
+                              : j.role === "supervisor"
+                              ? "Encadrant"
+                              : "Membre"
+                          }
+                        />
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography color="text.secondary">
+                      Jury non encore affecté
+                    </Typography>
+                  )}
+                </Stack>
               ) : (
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "#9CA3AF"
-                        : "#6B7280",
-                  }}
-                >
+                <Typography color="text.secondary">
                   Soutenance non planifiée
                 </Typography>
               )}
