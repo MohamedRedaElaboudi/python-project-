@@ -1,7 +1,7 @@
 import 'src/global.css';
 import { useEffect } from 'react';
 import Fab from '@mui/material/Fab';
-import { usePathname } from 'src/routes/hooks';
+import { usePathname } from 'src/routes';
 import { ThemeProvider } from 'src/theme/theme-provider';
 import { Iconify } from 'src/components/iconify';
 

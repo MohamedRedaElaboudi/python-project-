@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# PyCharm
+.idea/
+
+# Uploads
+uploads/
+Back-end/app/uploads/
+Back-end/uploads/
+
+# Node
+node_modules/
+
+# Venv
+venv/

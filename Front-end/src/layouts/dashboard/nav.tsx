@@ -9,7 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
-import { usePathname } from 'src/routes/hooks';
+import { usePathname } from 'src/routes';
 import { RouterLink } from 'src/routes/components';
 
 import { Logo } from 'src/components/logo';

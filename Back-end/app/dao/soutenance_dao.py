@@ -1,3 +1,4 @@
+
 from datetime import timedelta, datetime
 from ..models import db, Salle, Soutenance
 
@@ -77,4 +78,23 @@ def get_available_salles(date_debut, duree_minutes):
             available.append(salle)
 
     return available
+
+
+from ..models import Soutenance, Jury
+from sqlalchemy.orm import joinedload
+
+class SoutenanceDAO:
+
+    @staticmethod
+    def get_by_student(student_id):
+        return (
+            Soutenance.query
+            .options(
+                joinedload(Soutenance.salle),
+                joinedload(Soutenance.juries).joinedload(Jury.teacher)
+            )
+            .filter_by(student_id=student_id)
+            .order_by(Soutenance.date_soutenance.desc())
+            .first()
+        )
 

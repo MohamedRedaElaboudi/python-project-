@@ -79,6 +79,17 @@ class Soutenance(db.Model):
     def __repr__(self):
         return f"<Soutenance {self.id} - {self.statut}>"
 
+class Rapport(db.Model):
+    __tablename__ = "rapports"
+
+    id = db.Column(db.Integer, primary_key=True)
+    auteur_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    filename = db.Column(db.String(200), nullable=False)
+    path = db.Column(db.String(300), nullable=False)
+    status = db.Column(db.String(20), default="pending")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship("User", backref="reports")
 
 class Jury(db.Model):
     __tablename__ = 'juries'
@@ -103,4 +114,6 @@ def update_soutenance_status_before_save(mapper, connection, target):
     """
     if target.date_soutenance and target.date_soutenance < date.today():
         if target.statut == 'planned':
+            target.statut = 'done'
+            target.statut = 'done'
             target.statut = 'done'
