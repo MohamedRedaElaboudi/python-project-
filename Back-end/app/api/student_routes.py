@@ -21,7 +21,7 @@ def dashboard():
     student_id = int(get_jwt_identity())
 
     rapport = RapportDAO.get_latest_by_student(student_id)
-    soutenance = SoutenanceDAO.get_by_student(student_id)
+    soutenance = SoutenanceDAO.get_latest_by_student(student_id)
 
     return jsonify({
         "rapport": dict(rapport) if rapport else None,
@@ -51,5 +51,5 @@ def mes_rapports():
 def student_soutenance():
     student_id = int(get_jwt_identity())
 
-    soutenance = SoutenanceDAO.get_by_student(student_id)
+    soutenance = SoutenanceDAO.get_latest_by_student(student_id)
     return jsonify(dict(soutenance)) if soutenance else jsonify(None)

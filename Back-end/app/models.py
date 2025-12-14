@@ -91,6 +91,21 @@ class Jury(db.Model):
     soutenance = db.relationship('Soutenance', backref='juries')
     teacher = db.relationship('User', backref='jury_assignments')
 
+
+class Rapport(db.Model):
+    __tablename__ = 'rapports'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    auteur_id = db.Column(db.BigInteger, db.ForeignKey('students.user_id'), nullable=False)
+    titre = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    storage_path = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(50), default='uploaded')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    auteur = db.relationship('Student', backref='rapports')
+
+
 # models.py
 from sqlalchemy import event
 from datetime import date

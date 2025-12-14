@@ -1,13 +1,10 @@
 from flask import Blueprint, request, jsonify
-from ..models import User
+from ..dao.user_dao import UserDAO
 
-users_bp = Blueprint('users_bp', __name__, url_prefix='/api/users')
+users_bp = Blueprint('users', __name__, url_prefix='/api/v1/users')
 
 @users_bp.route('/')
 def get_users():
     role = request.args.get('role')
-    query = User.query
-    if role:
-        query = query.filter_by(role=role)
-    users = query.all()
-    return jsonify([{'id': u.id, 'name': u.name} for u in users])
+    users = UserDAO.get_all_users(role=role)
+    return jsonify([{'id': u.id, 'name': u.name, 'prenom': u.prenom} for u in users])

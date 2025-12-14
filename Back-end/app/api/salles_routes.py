@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..services.salles_service import lister_salles, creer_salle
 
-salles_bp = Blueprint('salles_bp', __name__, url_prefix='/api/salles')
+salles_bp = Blueprint('salles', __name__, url_prefix='/api/v1/salles')
 
 @salles_bp.route('/', methods=['GET'])
 def get_salles():

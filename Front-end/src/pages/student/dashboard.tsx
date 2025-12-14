@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
-  CardContent,
-  Typography,
   Chip,
+  Grid, // Named import for Grid
   Button,
+  Typography,
+  CardContent,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
 
 const API_BASE = "http://localhost:5000/api/v1";
 
@@ -100,7 +100,7 @@ export default function StudentDashboard() {
       {/* ================= CONTENT ================= */}
       <Grid container spacing={3}>
         {/* ===== RAPPORT ===== */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card
             sx={{
               borderRadius: 3,
@@ -164,7 +164,7 @@ export default function StudentDashboard() {
         </Grid>
 
         {/* ===== SOUTENANCE ===== */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card
             sx={{
               borderRadius: 3,

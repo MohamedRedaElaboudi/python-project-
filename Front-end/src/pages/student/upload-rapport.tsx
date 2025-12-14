@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button, Typography, TextField, Snackbar, Alert } from "@mui/material";
+import { Box, Alert, Button, Snackbar, TextField, Typography } from "@mui/material";
 import UploadDropzone from "../../components/UploadDropzone";
 
 const API_BASE = "http://localhost:5000/api/v1";

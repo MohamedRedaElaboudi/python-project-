@@ -7,9 +7,9 @@ import traceback
 
 # ✅ UN SEUL BLUEPRINT
 soutenances_bp = Blueprint(
-    'soutenances_bp',
+    'soutenances',
     __name__,
-    url_prefix='/api/soutenances'
+    url_prefix='/api/v1/soutenances'
 )
 
 # =====================================================
@@ -172,9 +172,6 @@ def get_availability():
     })
 
 
-# =====================================================
-# DELETE /api/soutenances/<id>
-# =====================================================
 # =====================================================
 # DELETE /api/soutenances/<id>
 # =====================================================

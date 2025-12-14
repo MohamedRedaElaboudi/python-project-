@@ -21,3 +21,10 @@ class UserDAO:
         db.session.add(user)
         db.session.commit()   # ✅ OBLIGATOIRE !!!
         return user
+
+    @staticmethod
+    def get_all_users(role=None):
+        query = User.query
+        if role:
+            query = query.filter_by(role=role)
+        return query.all()

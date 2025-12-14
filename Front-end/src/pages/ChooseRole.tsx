@@ -1,4 +1,4 @@
-import { Box, Card, Typography, Button } from "@mui/material";
+import { Box, Card, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function ChooseRole() {

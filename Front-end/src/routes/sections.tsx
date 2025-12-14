@@ -61,13 +61,10 @@ export const routesSection: RouteObject[] = [{
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
-<<<<<<< HEAD
-      { path: 'audit', element: <AuditPage /> }, // La nouvelle route ajoutée ici
-=======
-    { path: 'salles', element: <SallesPage /> },
-    { path: 'soutenances', element: <SoutenancesPage /> },
-    { path: 'utilisateurs', element: <UtilisateursPage /> },
->>>>>>> imane
+      { path: 'audit', element: <AuditPage /> },
+      { path: 'salles', element: <SallesPage /> },
+      { path: 'soutenances', element: <SoutenancesPage /> },
+      { path: 'utilisateurs', element: <UtilisateursPage /> },
     ],
   },
 

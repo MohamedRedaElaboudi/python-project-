@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
+  Button,
+  Divider,
   TextField,
   Typography,
-  Button,
   InputAdornment,
-  Divider,
 } from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
@@ -189,7 +189,7 @@ export default function Register() {
           }}
           onClick={register}
         >
-          S'inscrire
+          S&apos;inscrire
         </Button>
 
         <Typography textAlign="center" mt={2}>

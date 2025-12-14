@@ -5,12 +5,12 @@ import { registerStudent } from "../../api/auth";
 import {
   Box,
   Card,
+  Chip,
+  Button,
+  Divider,
   TextField,
   Typography,
-  Button,
   InputAdornment,
-  Divider,
-  Chip,
 } from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
@@ -213,9 +213,9 @@ export default function StudentRegister() {
           onChange={(e) => setForm({ ...form, niveau: e.target.value })}
         >
           <option value="">-- Sélectionner le niveau --</option>
-          <option value="1ere année">1ère année</option>
-          <option value="2eme année">2ème année</option>
-          <option value="3eme année">3ème année</option>
+          <option value="1ere annee">First year</option>
+          <option value="2eme annee">2&egrave;me ann&eacute;e</option>
+          <option value="3eme annee">3&egrave;me ann&eacute;e</option>
         </TextField>
 
         {/* FILIERE */}
