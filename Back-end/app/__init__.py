@@ -9,7 +9,7 @@ from .api.users_routes import users_bp
 from flask_cors import CORS
 from .extensions import init_extensions
 from .config import Config
-
+from .api.juries_routes import jurys_bp
 from .api.auth_routes import auth_bp
 from .api.rapport_routes import rapport_bp
 from .api.student_routes import student_bp
@@ -34,6 +34,7 @@ def create_app():
     init_extensions(app)
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(jurys_bp)
     app.register_blueprint(rapport_bp)
     app.register_blueprint(student_bp)
 
