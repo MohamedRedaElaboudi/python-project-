@@ -1,155 +1,327 @@
+import React, { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-
+import Skeleton from '@mui/material/Skeleton';
+import Alert from '@mui/material/Alert';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _posts, _tasks, _traffic, _timeline } from 'src/_mock';
+import { getUserName } from 'src/utils/auth';
 
-import { AnalyticsNews } from '../analytics-news';
-import { AnalyticsTasks } from '../analytics-tasks';
-import { AnalyticsCurrentVisits } from '../analytics-current-visits';
-import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
-import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
-import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
-import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
-import { AnalyticsCurrentSubject } from '../analytics-current-subject';
-import { AnalyticsConversionRates } from '../analytics-conversion-rates';
+// Composants d'administration
+import { AnalyticsSoutenancesStats } from '../analytics-soutenances-stats';
+import { AnalyticsUsersSummary } from '../analytics-users-summary';
+import { AnalyticsRapportsStats } from '../analytics-rapports-stats';
+import { AnalyticsSallesStats } from '../analytics-salles-stats';
+import { AnalyticsUsersByRole } from '../analytics-users-by-role';
+import { AnalyticsUpcomingSoutenances } from '../analytics-upcoming-soutenances';
+import { AnalyticsByFiliere } from '../analytics-by-filiere';
 
-// ----------------------------------------------------------------------
+// Types basés sur votre API Flask
+interface DashboardStats {
+  soutenances: {
 
-export function OverviewAnalyticsView() {
+    total: number;
+  };
+  users: {
+    total: number;
+    admin: number;
+    teacher: number;
+    student: number;
+    jury: number;
+  };
+  rapports: {
+    total: number;
+  };
+  salles: {
+    total: number;
+  };
+  upcomingSoutenances: Array<{
+    id: number;
+    date_soutenance: string;
+    heure_debut: string;
+    salle?: string;
+    student_name: string;
+    student_filiere: string;
+  }>;
+  usersByRole: Array<{
+    role: 'admin' | 'teacher' | 'student' | 'jury' ;
+    count: number;
+    percentage: number;
+  }>;
+  filiereStats?: Array<{
+    filiere: string;
+    count: number;
+  }>;
+}
+
+// Valeurs par défaut
+const defaultStats: DashboardStats = {
+  soutenances: { total: 0 },
+  users: { total: 0, admin: 0, teacher: 0, student: 0, jury: 0 },
+  rapports: { total: 0 },
+  salles: { total: 0},
+  upcomingSoutenances: [],
+  usersByRole: [],
+  filiereStats: []
+};
+
+export function OverviewAnalyticsView(): React.JSX.Element {
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>(defaultStats);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      let apiData: any = null; // Déclarer apiData en dehors du try pour l'utiliser dans le catch
+
+      try {
+        setLoading(true);
+        console.log('🔄 Chargement des données...');
+
+        const name = getUserName();
+        setUserName(name || '');
+
+        const token = localStorage.getItem('token');
+
+        const response = await fetch('http://localhost:5000/api/dashboard/stats', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('📡 Statut de la réponse:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP ${response.status}`);
+        }
+
+        apiData = await response.json(); // Assigner à apiData
+        console.log('📊 DONNÉES BRUTES DE L\'API:', apiData);
+
+        // EXTRACTION DES DONNÉES UTILISATEURS
+        let usersData = {
+          total: 0,
+          admin: 0,
+          teacher: 0,
+          student: 0,
+          jury: 0,
+        };
+
+        let usersByRole: Array<{role: string, count: number, percentage: number}> = [];
+
+        if (apiData.users) {
+          console.log('📊 Structure users:', apiData.users);
+
+          // Votre API retourne probablement {total: X, byRole: [...]}
+          if (apiData.users.byRole && Array.isArray(apiData.users.byRole)) {
+            console.log('✅ Format détecté: users = {total: X, byRole: [...]}');
+
+            // Extraire les counts depuis byRole
+            apiData.users.byRole.forEach((item: any) => {
+              if (item.role === 'admin') usersData.admin = item.count || 0;
+              else if (item.role === 'teacher') usersData.teacher = item.count || 0;
+              else if (item.role === 'student') usersData.student = item.count || 0;
+              else if (item.role === 'jury') usersData.jury = item.count || 0;
+            });
+
+            usersData.total = apiData.users.total ||
+              (usersData.admin + usersData.teacher + usersData.student +
+               usersData.jury );
+
+            usersByRole = apiData.users.byRole;
+          }
+          // Si l'API retourne directement les propriétés
+          else if (apiData.users.admin !== undefined) {
+            console.log('✅ Format détecté: users = {admin: X, teacher: Y, ...}');
+            usersData = {
+              total: apiData.users.total || 0,
+              admin: apiData.users.admin || 0,
+              teacher: apiData.users.teacher || 0,
+              student: apiData.users.student || 0,
+              jury: apiData.users.jury || 0,
+            };
+
+            // Créer usersByRole si non présent
+            if (!apiData.usersByRole) {
+              usersByRole = [
+                {
+                  role: 'admin',
+                  count: usersData.admin,
+                  percentage: usersData.total > 0 ? Math.round((usersData.admin / usersData.total) * 1000) / 10 : 0
+                },
+                {
+                  role: 'teacher',
+                  count: usersData.teacher,
+                  percentage: usersData.total > 0 ? Math.round((usersData.teacher / usersData.total) * 1000) / 10 : 0
+                },
+                {
+                  role: 'student',
+                  count: usersData.student,
+                  percentage: usersData.total > 0 ? Math.round((usersData.student / usersData.total) * 1000) / 10 : 0
+                },
+                {
+                  role: 'jury',
+                  count: usersData.jury,
+                  percentage: usersData.total > 0 ? Math.round((usersData.jury / usersData.total) * 1000) / 10 : 0
+                },
+
+              ];
+            }
+          }
+        }
+
+        console.log('📊 Données utilisateurs extraites:', usersData);
+        console.log('📊 usersByRole:', usersByRole);
+
+        // TRANSFORMATION COMPLÈTE DES DONNÉES
+        const transformedData: DashboardStats = {
+          soutenances: apiData.soutenances || {
+            planned: 0,
+            done: 0,
+            cancelled: 0,
+            total: 0
+          },
+          users: usersData,
+          rapports: apiData.rapports || {
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            total: 0
+          },
+          salles: apiData.salles || {
+            total: 0,
+
+          },
+          upcomingSoutenances: apiData.upcomingSoutenances || [],
+          usersByRole: usersByRole.length > 0 ? usersByRole : apiData.usersByRole || []
+        };
+
+        console.log('✅ Données transformées pour le dashboard:', transformedData);
+        setStats(transformedData);
+
+      } catch (err: any) {
+        console.error('❌ Erreur lors du chargement des données:', err);
+        setError('Erreur lors du chargement des données: ' + (err.message || 'Erreur inconnue'));
+
+        // Fallback avec données mockées - utiliser apiData si disponible
+        const fallbackUpcoming = apiData?.upcomingSoutenances || [];
+
+        setStats({
+          soutenances: {total: 16 },
+          users: { total: 40, admin: 0, teacher: 0, student: 40, jury: 0},
+          rapports: {  total: 1 },
+          salles: { total: 9 },
+          upcomingSoutenances: fallbackUpcoming,
+          usersByRole: [
+            { role: 'student', count: 40, percentage: 100 }
+          ]
+        });
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+
+
   return (
     <DashboardContent maxWidth="xl">
       <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-        Hi, Welcome back 👋
+        {loading ? (
+          <Skeleton width={200} />
+        ) : userName ? (
+          `Hi, Welcome ${userName} 👋`
+        ) : (
+          'Tableau de bord administrateur'
+        )}
       </Typography>
 
+      {error && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* CORRECTION ICI : Utilisez 'size' au lieu de 'item xs sm md' */}
       <Grid container spacing={3}>
+        {/* Carte 1: Statistiques des soutenances */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <AnalyticsWidgetSummary
-            title="Weekly sales"
-            percent={2.6}
-            total={714000}
-            icon={<img alt="Weekly sales" src="/assets/icons/glass/ic-glass-bag.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [22, 8, 35, 50, 82, 84, 77, 12],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={180} />
+          ) : (
+            <AnalyticsSoutenancesStats
+              title="Soutenances"
+              stats={stats.soutenances}
+            />
+          )}
         </Grid>
 
+        {/* Carte 2: Statistiques des utilisateurs */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <AnalyticsWidgetSummary
-            title="New users"
-            percent={-0.1}
-            total={1352831}
-            color="secondary"
-            icon={<img alt="New users" src="/assets/icons/glass/ic-glass-users.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [56, 47, 40, 62, 73, 30, 23, 54],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={180} />
+          ) : (
+            <AnalyticsUsersSummary
+              title="Utilisateurs"
+              stats={stats.users}
+            />
+          )}
         </Grid>
 
+        {/* Carte 3: Statistiques des rapports */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <AnalyticsWidgetSummary
-            title="Purchase orders"
-            percent={2.8}
-            total={1723315}
-            color="warning"
-            icon={<img alt="Purchase orders" src="/assets/icons/glass/ic-glass-buy.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [40, 70, 50, 28, 70, 75, 7, 64],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={180} />
+          ) : (
+            <AnalyticsRapportsStats
+              title="Rapports"
+              stats={stats.rapports}
+            />
+          )}
         </Grid>
 
+        {/* Carte 4: Statistiques des salles */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <AnalyticsWidgetSummary
-            title="Messages"
-            percent={3.6}
-            total={234}
-            color="error"
-            icon={<img alt="Messages" src="/assets/icons/glass/ic-glass-message.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [56, 30, 23, 54, 47, 40, 62, 73],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={180} />
+          ) : (
+            <AnalyticsSallesStats
+              title="Salles"
+              stats={stats.salles}
+            />
+          )}
         </Grid>
 
+        {/* Graphique: Répartition des utilisateurs par rôle */}
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsCurrentVisits
-            title="Current visits"
-            chart={{
-              series: [
-                { label: 'America', value: 3500 },
-                { label: 'Asia', value: 2500 },
-                { label: 'Europe', value: 1500 },
-                { label: 'Africa', value: 500 },
-              ],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={400} />
+          ) : (
+            <AnalyticsUsersByRole
+              title="Répartition par rôle"
+              data={stats.usersByRole}
+            />
+          )}
         </Grid>
 
+        {/* Liste: Soutenances à venir */}
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsWebsiteVisits
-            title="Website visits"
-            subheader="(+43%) than last year"
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-              series: [
-                { name: 'Team A', data: [43, 33, 22, 37, 67, 68, 37, 24, 55] },
-                { name: 'Team B', data: [51, 70, 47, 67, 40, 37, 24, 70, 24] },
-              ],
-            }}
-          />
+          {loading ? (
+            <Skeleton variant="rectangular" height={400} />
+          ) : (
+            <AnalyticsUpcomingSoutenances
+              title="Soutenances à venir"
+              soutenances={stats.upcomingSoutenances}
+              maxItems={5}
+            />
+          )}
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsConversionRates
-            title="Conversion rates"
-            subheader="(+43%) than last year"
-            chart={{
-              categories: ['Italy', 'Japan', 'China', 'Canada', 'France'],
-              series: [
-                { name: '2022', data: [44, 55, 41, 64, 22] },
-                { name: '2023', data: [53, 32, 33, 52, 13] },
-              ],
-            }}
-          />
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsCurrentSubject
-            title="Current subject"
-            chart={{
-              categories: ['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math'],
-              series: [
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsNews title="News" list={_posts.slice(0, 5)} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsOrderTimeline title="Order timeline" list={_timeline} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsTrafficBySite title="Traffic by site" list={_traffic} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsTasks title="Tasks" list={_tasks} />
-        </Grid>
       </Grid>
     </DashboardContent>
   );

@@ -63,7 +63,7 @@ export default function Login() {
           break;
 
         case "admin":
-          nav("/admin/home");
+          nav("/app");
           break;
         default:
           nav("/");
