@@ -263,7 +263,7 @@ class SoutenanceService:
                 student_index += 1
 
             db.session.commit()
-
+            SoutenanceService.update_teacher_roles()
             return True, (
                 f"{len(created_soutenances)} soutenances créées "
                 f"pour {filiere} le {date_soutenance}"
@@ -385,3 +385,41 @@ class SoutenanceService:
 
         db.session.commit()
         return len(soutenances_to_update)
+
+    @staticmethod
+    def update_teacher_roles():
+        """
+        Un enseignant est 'jury' UNIQUEMENT s'il est affecté
+        à AU MOINS une soutenance existante
+        """
+
+        teachers = User.query.filter(User.role.in_(['teacher', 'jury'])).all()
+
+        active_jury_ids = {
+            t[0] for t in
+            db.session.query(Jury.teacher_id)
+            .join(Soutenance)
+            .all()
+        }
+
+        updated_to_jury = 0
+        updated_to_teacher = 0
+
+        for teacher in teachers:
+            if teacher.id in active_jury_ids:
+                if teacher.role != 'jury':
+                    teacher.role = 'jury'
+                    updated_to_jury += 1
+            else:
+                if teacher.role != 'teacher':
+                    teacher.role = 'teacher'
+                    updated_to_teacher += 1
+
+        db.session.commit()
+
+        return {
+            "updated_to_jury": updated_to_jury,
+            "updated_to_teacher": updated_to_teacher
+        }
+
+

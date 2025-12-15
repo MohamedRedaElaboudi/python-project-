@@ -79,23 +79,29 @@ def update_user(user_id):
         return jsonify({'error': str(e)}), 500
 
 
-# Supprimer un utilisateur - CORRECTION ICI
-@users_bp.route('/<int:user_id>', methods=['DELETE'])  # Enlevez '/api/users/' ici
+@users_bp.route('/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
 
-    # Empêcher la suppression de son propre compte
-    current_user_id = get_jwt_identity()
+    # ⚠️ JWT identity est une STRING
+    current_user_id = int(get_jwt_identity())
+
     if user_id == current_user_id:
-        return jsonify({'error': 'Vous ne pouvez pas supprimer votre propre compte'}), 400
+        return jsonify({
+            'error': 'Vous ne pouvez pas supprimer votre propre compte'
+        }), 400
 
     try:
         db.session.delete(user)
         db.session.commit()
-        return jsonify({'message': 'Utilisateur supprimé avec succès'})
+        return jsonify({
+            'message': 'Utilisateur supprimé avec succès'
+        }), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
 
 

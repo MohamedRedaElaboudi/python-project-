@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _posts, _tasks, _traffic, _timeline } from 'src/_mock';
-
+import { useState, useEffect } from 'react';
 import { AnalyticsNews } from '../analytics-news';
 import { AnalyticsTasks } from '../analytics-tasks';
 import { AnalyticsCurrentVisits } from '../analytics-current-visits';
@@ -13,14 +13,31 @@ import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
 import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
 import { AnalyticsCurrentSubject } from '../analytics-current-subject';
 import { AnalyticsConversionRates } from '../analytics-conversion-rates';
-
+import { useAuth } from 'src/hooks/use-auth';
+import { getUserName  } from 'src/utils/auth';
+import Skeleton from '@mui/material/Skeleton';
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
-  return (
+
+    const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const name = getUserName();
+    setUserName(name);
+    setLoading(false);
+  }, []);
+   return (
     <DashboardContent maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-        Hi, Welcome back 👋
+        <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
+        {loading ? (
+          <Skeleton width={200} />
+        ) : userName ? (
+          `Hi, ${userName} 👋`
+        ) : (
+          'Hi, Welcome back 👋'
+        )}
       </Typography>
 
       <Grid container spacing={3}>

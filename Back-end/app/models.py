@@ -85,11 +85,11 @@ class Rapport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     auteur_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
-    path = db.Column(db.String(300), nullable=False)
+    storage_path = db.Column(db.String(300), nullable=False)
     status = db.Column(db.String(20), default="pending")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    student = db.relationship("User", backref="reports")
+    author = db.relationship("User", foreign_keys=[auteur_id])
 
 class Jury(db.Model):
     __tablename__ = 'juries'

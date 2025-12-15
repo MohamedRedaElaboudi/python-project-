@@ -172,9 +172,7 @@ def get_availability():
     })
 
 
-# =====================================================
-# DELETE /api/soutenances/<id>
-# =====================================================
+
 # =====================================================
 # DELETE /api/soutenances/<id>
 # =====================================================
@@ -186,6 +184,9 @@ def delete_soutenance(id):
         if not soutenance:
             return jsonify({'error': 'Soutenance non trouvée', 'id': id}), 404
 
+        # Récupérer les enseignants du jury
+        teachers_in_jury = [jury.teacher for jury in soutenance.juries]
+
         # Récupérer les informations avant suppression pour le logging
         student_name = f"{soutenance.student.user.prenom} {soutenance.student.user.name}" if soutenance.student else "Inconnu"
         date_soutenance = soutenance.date_soutenance
@@ -196,6 +197,19 @@ def delete_soutenance(id):
 
         # Supprimer la soutenance
         db.session.delete(soutenance)
+
+        # Vérifier si les enseignants ont d'autres soutenances
+        for teacher in teachers_in_jury:
+            other_juries = Jury.query.join(Soutenance).filter(
+                Jury.teacher_id == teacher.id,
+                Soutenance.id != id
+            ).count()
+
+            # Si l'enseignant n'a plus d'autres soutenances, remettre son rôle à 'teacher'
+            if other_juries == 0:
+                teacher.role = 'teacher'
+                current_app.logger.info(f"Rôle remis à 'teacher' pour {teacher.prenom} {teacher.name}")
+
         db.session.commit()
 
         current_app.logger.info(
@@ -203,7 +217,7 @@ def delete_soutenance(id):
             f"Date: {date_soutenance}, Heure: {heure_debut}, "
             f"Jurys supprimés: {deleted_juries}"
         )
-
+        SoutenanceService.update_teacher_roles()
         return jsonify({
             'status': 'deleted',
             'id': id,

@@ -412,7 +412,7 @@ export default function UtilisateursPage() {
   const roleLabels: Record<string, string> = {
     'student': 'Étudiant',
     'teacher': 'Enseignant',
-    'jury': 'Membre du Jury',
+    'jury': ' Jury',
     'admin': 'Administrateur',
     'chef': 'Chef de Département'
   };
@@ -451,30 +451,13 @@ export default function UtilisateursPage() {
               {users.length} utilisateurs au total
             </p>
           </div>
-          <button className="add-user-btn" onClick={handleAddUser}>
-            + Ajouter un utilisateur
-          </button>
+
         </div>
       </header>
 
       <main className="container">
         {/* Onglets */}
-        <div className="tabs-container">
-          <div className="tabs">
-            <button
-              className={`tab ${selectedTab === 'users' ? 'active' : ''}`}
-              onClick={() => setSelectedTab('users')}
-            >
-              Utilisateurs ({users.length})
-            </button>
-            <button
-              className={`tab ${selectedTab === 'jurys' ? 'active' : ''}`}
-              onClick={() => setSelectedTab('jurys')}
-            >
-              Jurys ({juryStats?.total_jurys || 0})
-            </button>
-          </div>
-        </div>
+
 
         {/* Barre de recherche */}
         <div className="filters-section">
@@ -607,22 +590,7 @@ export default function UtilisateursPage() {
           </>
         ) : (
           <>
-            {/* Statistiques des jurys */}
-            <div className="jury-stats">
-              <h2 className="section-title">Statistiques des Jurys</h2>
-              <div className="stats-grid">
-                {statsData.map((stat, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-icon" style={{ backgroundColor: stat.color }}>
-                      {stat.value}
-                    </div>
-                    <div className="stat-info">
-                      <h3 className="stat-label">{stat.label}</h3>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+
 
             {loadingJurys ? (
               <div className="loading-container">
