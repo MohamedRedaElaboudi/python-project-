@@ -28,19 +28,35 @@ def register():
 # ===============================
 @auth_bp.post("/register/student")
 def register_student():
-    data = request.json
+    data = request.get_json()
+
+    print("========== DEBUG REGISTER STUDENT ==========")
+    print("📥 DATA REÇUE :", data)
+
     errors = StudentRegisterSchema().validate(data)
 
+    print("❌ ERREURS SCHEMA :", errors)
+    print("===========================================")
+
     if errors:
-        return jsonify(errors), 400
+        return jsonify({
+            "message": "Validation error",
+            "errors": errors,
+            "received_data": data
+        }), 400
 
     data["role"] = "student"
 
     user, error = AuthService.register(data)
+
+    print("👤 USER :", user)
+    print("⚠️ SERVICE ERROR :", error)
+
     if error:
         return jsonify({"error": error}), 400
 
     return jsonify({"message": "Student created successfully"}), 201
+
 
 
 # ===============================

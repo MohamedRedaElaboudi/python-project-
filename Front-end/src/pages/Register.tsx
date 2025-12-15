@@ -172,7 +172,6 @@ export default function Register() {
           onChange={(e) => setForm({ ...form, role: e.target.value })}
         >
           <option value="teacher">Enseignant</option>
-          <option value="jury">Jury</option>
           <option value="admin">Administrateur</option>
         </TextField>
 

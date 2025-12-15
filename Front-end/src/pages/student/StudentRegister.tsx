@@ -30,6 +30,7 @@ const isAcademicEmail = (email: string) =>
 const isStrongPassword = (password: string) =>
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
 
+
 export default function StudentRegister() {
   const nav = useNavigate();
 
@@ -76,7 +77,9 @@ export default function StudentRegister() {
     form.name &&
     form.prenom &&
     form.cin &&
-    form.cne;
+    form.cne &&
+    form.filiere &&
+    form.niveau;
 
   return (
     <Box
@@ -134,6 +137,7 @@ export default function StudentRegister() {
 
         <TextField
           fullWidth
+          required
           label="Nom"
           margin="normal"
           InputProps={{
@@ -148,6 +152,7 @@ export default function StudentRegister() {
 
         <TextField
           fullWidth
+          required
           label="Prénom"
           margin="normal"
           InputProps={{
@@ -163,6 +168,8 @@ export default function StudentRegister() {
         {/* ================= EMAIL ================= */}
         <TextField
           fullWidth
+          required
+
           label="Email académique"
           margin="normal"
           error={Boolean(emailError)}
@@ -191,6 +198,7 @@ export default function StudentRegister() {
         {/* ================= PASSWORD ================= */}
         <TextField
           fullWidth
+          required
           label="Mot de passe"
           type="password"
           margin="normal"
@@ -229,6 +237,7 @@ export default function StudentRegister() {
 
         <TextField
           fullWidth
+          required
           label="CIN"
           margin="normal"
           InputProps={{
@@ -243,6 +252,7 @@ export default function StudentRegister() {
 
         <TextField
           fullWidth
+          required
           label="CNE"
           margin="normal"
           InputProps={{
@@ -257,6 +267,7 @@ export default function StudentRegister() {
 
         <TextField
           fullWidth
+          required
           label="Téléphone"
           margin="normal"
           InputProps={{
@@ -268,6 +279,46 @@ export default function StudentRegister() {
           }}
           onChange={(e) => setForm({ ...form, tel: e.target.value })}
         />
+        {/* ================= NIVEAU ================= */}
+        <TextField
+          select
+          fullWidth
+          required
+          label="Niveau"
+          margin="normal"
+          SelectProps={{ native: true }}
+          onChange={(e) => setForm({ ...form, niveau: e.target.value })}
+        >
+          <option value="">-- Sélectionner le niveau --</option>
+          <option value="1ère année">1ère année</option>
+          <option value="2ème année">2ème année</option>
+          <option value="3ème année">3ème année</option>
+        </TextField>
+
+        {/* ================= FILIÈRE ================= */}
+        <TextField
+          select
+          fullWidth
+          required
+          label="Filière"
+          margin="normal"
+          SelectProps={{ native: true }}
+          onChange={(e) => setForm({ ...form, filiere: e.target.value })}
+        >
+          <option value="">-- Sélectionner la filière --</option>
+          <option value="SITCN">
+            Ingénierie spécialisée en Cybersécurité (SITCN)
+          </option>
+          <option value="IL">Développement Logiciel (IL)</option>
+          <option value="MGSI">
+            Management des Systèmes d'Information (MGSI)
+          </option>
+          <option value="SDBDIA">
+            Sciences des Données, Big Data & IA (SDBDIA)
+          </option>
+        </TextField>
+
+
 
         {/* ================= NOTATION ================= */}
         <Alert severity="info" sx={{ mt: 2 }}>

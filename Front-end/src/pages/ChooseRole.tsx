@@ -122,7 +122,7 @@ export default function ChooseRole() {
           />
 
           <Typography variant="h6" fontWeight="bold" mb={1}>
-            Admin / Enseignant / Jury
+            Admin / Enseignant
           </Typography>
 
           <Typography color="text.secondary" mb={3}>

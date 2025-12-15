@@ -129,7 +129,8 @@ class SoutenanceService:
     @staticmethod
     def schedule_soutenances_for_filiere(
             filiere: str,
-            date_soutenance: date,
+            niveau: str = None,  # Ajout du paramètre niveau
+            date_soutenance: date = None,
             start_time: time = time(8, 30),
             end_time: time = time(18, 30),
             duree_minutes: int = 15
@@ -138,9 +139,14 @@ class SoutenanceService:
             # =============================
             # 1️⃣ Étudiants
             # =============================
-            students = Student.query.filter_by(filiere=filiere).all()
+            query = Student.query.filter_by(filiere=filiere)
+            if niveau:
+                query = query.filter_by(niveau=niveau)
+
+            students = query.all()
+
             if not students:
-                return False, f"Aucun étudiant trouvé pour la filière {filiere}", []
+                return False, f"Aucun étudiant trouvé pour {filiere}" + (f" niveau {niveau}" if niveau else ""), []
 
             total_students = len(students)
             created_soutenances = []
@@ -200,6 +206,8 @@ class SoutenanceService:
             # 4️⃣ Jurys - approche flexible
             # =============================
             roles = ['president', 'member', 'member']
+            jury_morning = None
+            jury_afternoon = None
 
             # Si on a assez d'enseignants/jurys pour toute la journée
             if len(available_teachers) >= 6:
@@ -248,22 +256,51 @@ class SoutenanceService:
                     continue
 
                 # Vérifier la disponibilité des enseignants/jurys à ce créneau précis
-                busy_at_this_time = SoutenanceService.get_busy_teachers(date_soutenance, current_time)
+                # Déterminer si on est matin ou après-midi
+                is_morning = current_time < time(12, 30)
+                is_afternoon = current_time >= time(14, 30)
 
-                # Chercher des enseignants/jurys disponibles à ce créneau
-                available_now = [
-                    t for t in User.query.filter(User.role.in_(['teacher', 'jury'])).all()
-                    if t.id not in busy_at_this_time
-                ]
+                # =============================
+                # JURY DU MATIN
+                # =============================
+                if is_morning:
+                    if jury_morning is None:
+                        busy_today = SoutenanceService.get_busy_teachers_for_date(date_soutenance)
 
-                if len(available_now) < 3:
-                    # Chercher un autre créneau
-                    current_datetime += timedelta(minutes=duree_minutes)
-                    current_time = current_datetime.time()
-                    continue
+                        available = [
+                            t for t in User.query.filter(User.role.in_(['teacher', 'jury'])).all()
+                            if t.id not in busy_today
+                        ]
 
-                # Sélectionner 3 enseignants/jurys disponibles
-                jury_members = random.sample(available_now, 3)
+                        if len(available) < 3:
+                            current_datetime += timedelta(minutes=duree_minutes)
+                            current_time = current_datetime.time()
+                            continue
+
+                        jury_morning = random.sample(available, 3)
+
+                    jury_members = jury_morning
+
+                # =============================
+                # JURY DE L'APRÈS-MIDI
+                # =============================
+                elif is_afternoon:
+                    if jury_afternoon is None:
+                        busy_today = SoutenanceService.get_busy_teachers_for_date(date_soutenance)
+
+                        available = [
+                            t for t in User.query.filter(User.role.in_(['teacher', 'jury'])).all()
+                            if t.id not in busy_today
+                        ]
+
+                        if len(available) < 3:
+                            current_datetime += timedelta(minutes=duree_minutes)
+                            current_time = current_datetime.time()
+                            continue
+
+                        jury_afternoon = random.sample(available, 3)
+
+                    jury_members = jury_afternoon
 
                 # =============================
                 # 7️⃣ Création soutenance
@@ -321,8 +358,13 @@ class SoutenanceService:
             return False, str(e), []
 
     @staticmethod
-    def get_students_by_filiere(filiere: str, date_soutenance=None):
-        students = Student.query.filter_by(filiere=filiere).all()
+    def get_students_by_filiere(filiere: str, date_soutenance=None, niveau: str = None):
+        query = Student.query.filter_by(filiere=filiere)
+
+        if niveau:
+            query = query.filter_by(niveau=niveau)
+
+        students = query.all()
         result = []
 
         for student in students:
@@ -338,7 +380,7 @@ class SoutenanceService:
                 'name': f"{student.user.prenom} {student.user.name}",
                 'cne': student.cne,
                 'filiere': student.filiere,
-                'niveau': student.niveau,
+                'niveau': student.niveau,  # S'assurer que le niveau est inclus
                 'has_soutenance': soutenance is not None,
                 'soutenance_heure': soutenance.heure_debut.strftime('%H:%M') if soutenance else None,
                 'soutenance_salle': soutenance.salle.name if soutenance and soutenance.salle else None
@@ -347,13 +389,16 @@ class SoutenanceService:
         return result
 
     @staticmethod
-    def get_soutenances_by_date_and_filiere(date_soutenance, filiere=None):
+    def get_soutenances_by_date_and_filiere(date_soutenance, filiere=None, niveau=None):
         query = db.session.query(Soutenance).join(Student).join(User).outerjoin(Salle)
 
         query = query.filter(Soutenance.date_soutenance == date_soutenance)
 
         if filiere:
             query = query.filter(Student.filiere == filiere)
+
+        if niveau:
+            query = query.filter(Student.niveau == niveau)
 
         # Trier par heure pour une meilleure lisibilité
         soutenances = query.order_by(Soutenance.heure_debut).all()
@@ -364,13 +409,15 @@ class SoutenanceService:
             result.append({
                 'id': s.id,
                 'heure_debut': s.heure_debut.strftime('%H:%M'),
+                'date_soutenance': s.date_soutenance.strftime('%Y-%m-%d'),
                 'salle': s.salle.name if s.salle else None,
                 'salle_id': s.salle_id,
                 'student': {
                     'id': s.student.user_id,
                     'name': f"{s.student.user.prenom} {s.student.user.name}",
                     'cne': s.student.cne,
-                    'filiere': s.student.filiere
+                    'filiere': s.student.filiere,
+                    'niveau': s.student.niveau  # Inclure le niveau dans la réponse
                 },
                 'teachers': [
                     {
