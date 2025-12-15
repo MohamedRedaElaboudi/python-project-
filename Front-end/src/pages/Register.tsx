@@ -173,7 +173,6 @@ export default function Register() {
         >
           <option value="teacher">Enseignant</option>
           <option value="jury">Jury</option>
-          <option value="chef">Chef de département</option>
           <option value="admin">Administrateur</option>
         </TextField>
 

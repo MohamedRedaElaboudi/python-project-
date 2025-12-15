@@ -10,7 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(200), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(
-        db.Enum('student', 'teacher', 'jury', 'admin', 'chef'),
+        db.Enum('student', 'teacher', 'jury', 'admin'),
         nullable=False
     )
 
@@ -64,16 +64,24 @@ class Salle(db.Model):
 
     def __repr__(self):
         return f"<Salle {self.name}>"
+
 class Jury(db.Model):
     __tablename__ = "juries"
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    soutenance_id = db.Column(db.BigInteger, db.ForeignKey("soutenances.id", ondelete="CASCADE"), nullable=False)
-    teacher_id = db.Column(db.BigInteger, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    soutenance_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("soutenances.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    teacher_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
     role = db.Column(db.Enum("president", "member", "supervisor"), default="member")
 
-    # ✅ RELATION PROPRE
     soutenance = db.relationship(
         "Soutenance",
         back_populates="juries"
@@ -81,17 +89,16 @@ class Jury(db.Model):
 
     teacher = db.relationship("User", backref="jury_assignments")
 
+
 class Soutenance(db.Model):
     __tablename__ = "soutenances"
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-
     student_id = db.Column(
         db.BigInteger,
         db.ForeignKey("students.user_id", ondelete="CASCADE"),
         nullable=False
     )
-
     salle_id = db.Column(
         db.BigInteger,
         db.ForeignKey("salles.id"),
@@ -109,40 +116,30 @@ class Soutenance(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # relations
+    # Relations ORM
     salle = db.relationship("Salle", backref="soutenances")
     student = db.relationship("Student", backref="soutenances")
 
-    # 🔥 IMPORTANT : relation inverse avec Jury
+    # 🔗 relation avec Jury (OBLIGATOIRE)
     juries = db.relationship(
         "Jury",
         back_populates="soutenance",
         cascade="all, delete-orphan"
     )
 
-    @property
-    def etudiant(self):
-        return self.student.user if self.student else None
-
+    # ✅ ICI EXACTEMENT
     def to_dict(self):
         return {
             "id": self.id,
             "date_debut": f"{self.date_soutenance} {self.heure_debut}",
-            "date_soutenance": self.date_soutenance.isoformat(),
-            "heure_debut": self.heure_debut.strftime("%H:%M"),
             "duree_minutes": self.duree_minutes,
             "statut": self.statut,
             "salle": self.salle.name if self.salle else None,
             "jury": [
                 {
-                    "id": j.id,
-                    "role": j.role,
-                    "teacher": {
-                        "id": j.teacher.id,
-                        "nom": j.teacher.name,
-                        "prenom": j.teacher.prenom,
-                        "email": j.teacher.email,
-                    }
+                    "id": j.teacher.id,
+                    "nom": f"{j.teacher.prenom} {j.teacher.name}",
+                    "role": j.role
                 }
                 for j in self.juries
             ]

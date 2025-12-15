@@ -5,6 +5,7 @@ from .config import Config
 from .api.auth_routes import auth_bp
 from .api.rapport_routes import rapport_bp
 from .api.student_routes import student_bp
+from .api.student_profile_routes import student_profile_bp
 
 def create_app():
     app = Flask(__name__)
@@ -15,5 +16,6 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(rapport_bp)
     app.register_blueprint(student_bp)
+    app.register_blueprint(student_profile_bp)
 
     return app

@@ -61,9 +61,7 @@ export default function Login() {
         case "jury":
           nav("/jury/home");
           break;
-        case "chef":
-          nav("/chef/home");
-          break;
+
         case "admin":
           nav("/admin/home");
           break;

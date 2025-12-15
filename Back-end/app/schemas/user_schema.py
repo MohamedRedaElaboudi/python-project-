@@ -6,7 +6,7 @@ class RegisterSchema(Schema):
     email = fields.Email(required=True)
     password = fields.String(required=True, validate=validate.Length(min=6))
     role = fields.String(required=True, validate=validate.OneOf(
-        ["student", "teacher", "jury", "admin", "chef"]
+        ["student", "teacher", "jury", "admin"]
     ))
 
 

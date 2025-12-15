@@ -11,6 +11,7 @@ import {
   InputAdornment,
   Divider,
   Chip,
+  Alert,
 } from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
@@ -19,6 +20,15 @@ import LockIcon from "@mui/icons-material/Lock";
 import SchoolIcon from "@mui/icons-material/School";
 import BadgeIcon from "@mui/icons-material/Badge";
 import PhoneIcon from "@mui/icons-material/Phone";
+
+/* =======================
+   VALIDATION HELPERS
+   ======================= */
+const isAcademicEmail = (email: string) =>
+  /^[a-zA-Z0-9._%+-]+@edu\.uiz\.ac\.ma$/.test(email);
+
+const isStrongPassword = (password: string) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
 
 export default function StudentRegister() {
   const nav = useNavigate();
@@ -35,14 +45,38 @@ export default function StudentRegister() {
     niveau: "",
   });
 
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  /* =======================
+     SUBMIT
+     ======================= */
   const submit = async () => {
+    if (!isAcademicEmail(form.email)) {
+      alert("Veuillez utiliser votre email académique (@edu.uiz.ac.ma)");
+      return;
+    }
+
+    if (!isStrongPassword(form.password)) {
+      alert("Mot de passe non sécurisé");
+      return;
+    }
+
     try {
       await registerStudent(form);
-      nav("/login"); // ✅ retour login
+      nav("/login");
     } catch {
       alert("Erreur lors de l'inscription étudiant");
     }
   };
+
+  const isFormValid =
+    isAcademicEmail(form.email) &&
+    isStrongPassword(form.password) &&
+    form.name &&
+    form.prenom &&
+    form.cin &&
+    form.cne;
 
   return (
     <Box
@@ -68,7 +102,7 @@ export default function StudentRegister() {
           <img src="/assets/logo.png" alt="ENSIAS Logo" style={{ width: 160 }} />
         </Box>
 
-        {/* BADGE ETUDIANT */}
+        {/* BADGE */}
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <Chip
             icon={<SchoolIcon />}
@@ -93,7 +127,7 @@ export default function StudentRegister() {
 
         <Divider sx={{ my: 2 }} />
 
-        {/* ===== INFOS PERSONNELLES ===== */}
+        {/* ================= INFOS PERSONNELLES ================= */}
         <Typography variant="subtitle1" fontWeight="bold" mb={1}>
           Informations personnelles
         </Typography>
@@ -126,10 +160,15 @@ export default function StudentRegister() {
           onChange={(e) => setForm({ ...form, prenom: e.target.value })}
         />
 
+        {/* ================= EMAIL ================= */}
         <TextField
           fullWidth
-          label="Email"
+          label="Email académique"
           margin="normal"
+          error={Boolean(emailError)}
+          helperText={
+            emailError || "Format requis : prenom.nom@edu.uiz.ac.ma"
+          }
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -137,14 +176,29 @@ export default function StudentRegister() {
               </InputAdornment>
             ),
           }}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => {
+            const value = e.target.value;
+            setForm({ ...form, email: value });
+
+            if (!isAcademicEmail(value)) {
+              setEmailError("Email académique requis (@edu.uiz.ac.ma)");
+            } else {
+              setEmailError("");
+            }
+          }}
         />
 
+        {/* ================= PASSWORD ================= */}
         <TextField
           fullWidth
           label="Mot de passe"
           type="password"
           margin="normal"
+          error={Boolean(passwordError)}
+          helperText={
+            passwordError ||
+            "Min. 8 caractères, majuscule, chiffre et symbole"
+          }
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -152,11 +206,23 @@ export default function StudentRegister() {
               </InputAdornment>
             ),
           }}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => {
+            const value = e.target.value;
+            setForm({ ...form, password: value });
+
+            if (!isStrongPassword(value)) {
+              setPasswordError(
+                "Mot de passe faible (majuscule, chiffre, symbole requis)"
+              );
+            } else {
+              setPasswordError("");
+            }
+          }}
         />
 
-        {/* ===== INFOS ACADÉMIQUES ===== */}
+        {/* ================= INFOS ACADÉMIQUES ================= */}
         <Divider sx={{ my: 2 }} />
+
         <Typography variant="subtitle1" fontWeight="bold" mb={1}>
           Informations académiques
         </Typography>
@@ -203,44 +269,22 @@ export default function StudentRegister() {
           onChange={(e) => setForm({ ...form, tel: e.target.value })}
         />
 
-        {/* NIVEAU */}
-        <TextField
-          select
-          fullWidth
-          label="Niveau"
-          margin="normal"
-          SelectProps={{ native: true }}
-          onChange={(e) => setForm({ ...form, niveau: e.target.value })}
-        >
-          <option value="">-- Sélectionner le niveau --</option>
-          <option value="1ere année">1ère année</option>
-          <option value="2eme année">2ème année</option>
-          <option value="3eme année">3ème année</option>
-        </TextField>
+        {/* ================= NOTATION ================= */}
+        <Alert severity="info" sx={{ mt: 2 }}>
+          <strong>Conditions d’inscription :</strong>
+          <ul style={{ marginTop: 8 }}>
+            <li>Email académique obligatoire : <b>@edu.uiz.ac.ma</b></li>
+            <li>
+              Mot de passe sécurisé :
+              <ul>
+                <li>Minimum 8 caractères</li>
+                <li>1 majuscule, 1 chiffre, 1 symbole</li>
+              </ul>
+            </li>
+          </ul>
+        </Alert>
 
-        {/* FILIERE */}
-        <TextField
-          select
-          fullWidth
-          label="Filière"
-          margin="normal"
-          SelectProps={{ native: true }}
-          onChange={(e) => setForm({ ...form, filiere: e.target.value })}
-        >
-          <option value="">-- Sélectionner la filière --</option>
-          <option value="SITCN">
-            Ingénierie spécialisée en Cybersécurité (SITCN)
-          </option>
-          <option value="IL">Développement Logiciel (IL)</option>
-          <option value="MGSI">
-            Management des Systèmes d'Information (MGSI)
-          </option>
-          <option value="SDBDIA">
-            Sciences des Données, Big Data & IA (SDBDIA)
-          </option>
-        </TextField>
-
-        {/* BOUTON */}
+        {/* ================= BUTTON ================= */}
         <Button
           fullWidth
           variant="contained"
@@ -250,6 +294,7 @@ export default function StudentRegister() {
             fontWeight: "bold",
             borderRadius: 3,
           }}
+          disabled={!isFormValid}
           onClick={submit}
         >
           Créer compte étudiant
