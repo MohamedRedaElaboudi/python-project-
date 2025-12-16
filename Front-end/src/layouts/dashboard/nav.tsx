@@ -10,7 +10,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
 import { usePathname } from 'src/routes';
-import { RouterLink } from 'src/routes/components';
+
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -109,11 +110,13 @@ export function NavMobile({
 // ----------------------------------------------------------------------
 
 export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
+
+  const normalizePath = (path: string) =>
+  path.replace(/\/+$/, '');
 
   return (
     <>
-      <Logo />
 
       {slots?.topArea}
 
@@ -143,14 +146,21 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
             }}
           >
             {data.map((item) => {
-              const isActived = item.path === pathname;
+              const currentPath = normalizePath(pathname);
+const itemPath = normalizePath(item.path);
+
+const isActived =
+  currentPath === itemPath ||
+  (itemPath !== '/app' && currentPath.startsWith(itemPath + '/'));
+
 
               return (
                 <ListItem disableGutters disablePadding key={item.title}>
                   <ListItemButton
                     disableGutters
                     component={RouterLink}
-                    href={item.path}
+                    to={item.path}
+
                     sx={[
                       (theme) => ({
                         pl: 2,

@@ -338,3 +338,117 @@
     gap: 0.25rem;
   }
 }
+/* Messages */
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.message-icon {
+  font-size: 18px;
+}
+
+.message-text {
+  flex: 1;
+}
+
+/* Bouton de suppression */
+.salle-footer {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.delete-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.delete-button:hover:not(:disabled) {
+  background: rgba(220, 53, 69, 0.8);
+  transform: translateY(-2px);
+}
+
+.delete-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-icon {
+  font-size: 14px;
+}
+
+.delete-loading {
+  animation: spin 1s linear infinite;
+}
+
+.delete-text {
+  font-weight: 500;
+}
+
+/* Animation de suppression */
+.salle-card.deleting {
+  opacity: 0.6;
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delete-text {
+    display: none;
+  }
+
+  .delete-button {
+    padding: 6px 8px;
+  }
+}

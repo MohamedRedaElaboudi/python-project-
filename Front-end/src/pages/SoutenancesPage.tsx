@@ -81,7 +81,7 @@ interface Availability {
 
 // Définir les constantes de filières
 const FILIERES = ['IL', 'MGSI', 'SDBDIA', 'SITCN'];
-const NIVEAUX = ['1ère année', '2ème année', '3ème année', 'Master 1', 'Master 2'];
+const NIVEAUX = ['1ère année', '2ème année', '3ème année'];
 
 // Nouvelle structure simplifiée
 interface GroupeFiliereNiveau {
@@ -696,70 +696,7 @@ const SoutenancePage: React.FC = () => {
                     </Table>
 
                     {/* Résumé en bas du tableau */}
-                    <Box sx={{
-                      p: 2,
-                      backgroundColor: '#f5f5f5',
-                      borderTop: '1px solid #e0e0e0',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-                          <strong>Total :</strong> {totalSoutenances} soutenance(s)
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                          {(() => {
-                            const datesUniques = new Set(groupe.soutenances.map(s => s.date_soutenance));
-                            return `Dates : ${datesUniques.size} jour(s)`;
-                          })()}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                          <strong>Salles :</strong> {(() => {
-                            const sallesUniques = new Set(groupe.soutenances.map(s => s.salle));
-                            return Array.from(sallesUniques).filter(s => s).join(', ') || 'Non définies';
-                          })()}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                          {(() => {
-                            const heures = groupe.soutenances.map(s => s.heure_debut);
-                            if (heures.length > 0) {
-                              return `Heures : ${heures[0]} à ${heures[heures.length - 1]}`;
-                            }
-                            return '';
-                          })()}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        {(() => {
-                          const uniqueJurys = new Set<number>();
-                          const jurysDetails = new Map<number, { name: string, role: string }>();
 
-                          groupe.soutenances.forEach(s => {
-                            s.teachers.forEach(t => {
-                              uniqueJurys.add(t.id);
-                              if (!jurysDetails.has(t.id)) {
-                                jurysDetails.set(t.id, { name: t.name, role: t.role });
-                              }
-                            });
-                          });
-
-                          return (
-                            <Box>
-                              <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                                <strong>Jurys :</strong> {uniqueJurys.size}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                                {Array.from(jurysDetails.values()).slice(0, 3).map(j => j.name).join(', ')}
-                                {uniqueJurys.size > 3 && ` et ${uniqueJurys.size - 3} autres`}
-                              </Typography>
-                            </Box>
-                          );
-                        })()}
-                      </Box>
-                    </Box>
                   </Paper>
                 </Box>
               );

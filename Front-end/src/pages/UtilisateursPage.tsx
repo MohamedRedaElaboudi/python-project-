@@ -7,7 +7,7 @@ interface User {
   prenom: string;
   name: string;
   email: string;
-  role: 'student' | 'teacher' | 'jury' | 'admin' | 'chef';
+  role: 'student' | 'teacher' | 'jury' | 'admin' ;
   created_at: string;
   updated_at: string | null;
 }
@@ -56,7 +56,7 @@ export default function UtilisateursPage() {
     prenom: '',
     name: '',
     email: '',
-    role: 'student' as 'student' | 'teacher' | 'jury' | 'admin' | 'chef',
+    role: 'student' as 'student' | 'teacher' | 'jury' | 'admin' ,
     password: '',
     confirmPassword: ''
   });
@@ -414,7 +414,6 @@ export default function UtilisateursPage() {
     'teacher': 'Enseignant',
     'jury': ' Jury',
     'admin': 'Administrateur',
-    'chef': 'Chef de Département'
   };
 
   const roleColors: Record<string, string> = {
@@ -422,7 +421,6 @@ export default function UtilisateursPage() {
     'teacher': '#2196F3',
     'jury': '#9C27B0',
     'admin': '#FF9800',
-    'chef': '#F44336'
   };
 
   const juryRoleColors: Record<string, string> = {
