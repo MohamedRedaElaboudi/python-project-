@@ -20,6 +20,11 @@ import StudentLayout from "./pages/student/StudentLayout";
 import { DashboardLayout } from 'src/layouts/dashboard';
 import { AuthLayout } from 'src/layouts/auth';
 
+import { PlagiatLayout } from './PlagiatLayout';
+import { Plagiat } from './pages/Plagiat/Plagiat';
+import { DashboardPlagiat } from './pages/Plagiat/DashboardPlagiat';
+import { PlagiatAnalysis } from "./pages/Plagiat/PlagiatAnalysis";
+
 // =======================
 // Lazy loaded pages (admin)
 // =======================
@@ -89,6 +94,15 @@ export default function AppRouter() {
               <Route path="soutenance" element={<StudentSoutenance />} />
             </Route>
           </Route>
+
+
+          {/* ---------------- Plagiat routes ---------------- */}
+          <Route path="/plagiat" element={<PlagiatLayout><Plagiat /></PlagiatLayout>} />
+          <Route path="/plagiat/dashboard" element={<PlagiatLayout><DashboardPlagiat /></PlagiatLayout>} />
+          <Route path="/plagiat/analysis/:id" element={<PlagiatLayout><PlagiatAnalysis /></PlagiatLayout>} />
+
+
+
 
           {/* 404 */}
           <Route path="/404" element={<Page404 />} />

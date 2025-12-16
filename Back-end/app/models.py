@@ -82,8 +82,8 @@ class Soutenance(db.Model):
 class Rapport(db.Model):
     __tablename__ = "rapports"
 
-    id = db.Column(db.Integer, primary_key=True)
-    auteur_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    auteur_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
     filename = db.Column(db.String(200), nullable=False)
     storage_path = db.Column(db.String(300), nullable=False)
     status = db.Column(db.String(20), default="pending")
@@ -101,6 +101,72 @@ class Jury(db.Model):
     # Relations
     soutenance = db.relationship('Soutenance', backref='juries')
     teacher = db.relationship('User', backref='jury_assignments')
+
+##Plagiat
+class PlagiatAnalysis(db.Model):
+    __tablename__ = "plagiat_analyses"
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    rapport_id = db.Column(db.BigInteger, db.ForeignKey("rapports.id", ondelete='CASCADE'))
+    similarity_score = db.Column(db.Float)
+    originality_score = db.Column(db.Float)
+    risk_level = db.Column(db.Enum("low", "medium", "high"))
+    total_matches = db.Column(db.Integer)
+    sources_count = db.Column(db.Integer)
+    status = db.Column(db.Enum("pending", "completed"))
+    analyzed_at = db.Column(db.DateTime)
+    rapport = db.relationship("Rapport", backref="analyses")
+
+    @property
+    def jury_assigned(self):
+        if not self.rapport or not self.rapport.author.student:
+            return []
+
+        jurys = []
+        for soutenance in self.rapport.author.student.soutenances:
+            for jury in soutenance.juries:
+                if jury.teacher:
+                    jurys.append(jury.teacher.name)
+        return jurys
+
+    warnings = db.Column(db.JSON, nullable=True)
+    recommendations = db.Column(db.JSON, nullable=True)
+    ai_score = db.Column(db.Float, nullable=True)
+    chunks_analyzed = db.Column(db.Integer, nullable=True)
+    chunks_with_matches = db.Column(db.Integer, nullable=True)
+
+    matches = db.relationship(
+        "PlagiatMatch",
+        back_populates="analysis",
+        cascade="all, delete-orphan"
+    )
+
+
+class PlagiatMatch(db.Model):
+    __tablename__ = 'plagiat_matches'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    analysis_id = db.Column(db.BigInteger, db.ForeignKey('plagiat_analyses.id'), nullable=False)
+
+    text = db.Column(db.Text, nullable=False)
+    source_url = db.Column(db.String(500))
+    source = db.Column(db.String(50), nullable=True)
+    score = db.Column(db.Float, nullable=True)
+    similarity = db.Column(db.Float, nullable=True)
+    url = db.Column(db.String(500), nullable=True)
+    matched_text = db.Column(db.Text, nullable=True)
+    original_text = db.Column(db.Text, nullable=True)
+    x = db.Column(db.Float, nullable=True)
+    y = db.Column(db.Float, nullable=True)
+    width = db.Column(db.Float, nullable=True)
+    height = db.Column(db.Float, nullable=True)
+    page = db.Column(db.Integer)
+    chunk_index = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    analysis = db.relationship("PlagiatAnalysis", back_populates="matches")
+######
+
 
 # models.py
 from sqlalchemy import event

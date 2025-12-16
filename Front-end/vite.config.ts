@@ -25,6 +25,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: [
+        {
+         find: '@',
+         replacement: path.resolve(process.cwd(), 'src'),
+      },
       {
         find: /^src(.+)/,
         replacement: path.resolve(process.cwd(), 'src/$1'),
