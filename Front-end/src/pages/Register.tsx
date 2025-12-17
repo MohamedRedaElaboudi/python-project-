@@ -47,7 +47,7 @@ export default function Register() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #0D47A1, #1976D2, #42A5F5)",
+        background: "linear-gradient(135deg, #EEF2FF, #F8FAFC)",
       }}
     >
       <Card
@@ -172,8 +172,6 @@ export default function Register() {
           onChange={(e) => setForm({ ...form, role: e.target.value })}
         >
           <option value="teacher">Enseignant</option>
-          <option value="jury">Jury</option>
-          <option value="chef">Chef de département</option>
           <option value="admin">Administrateur</option>
         </TextField>
 

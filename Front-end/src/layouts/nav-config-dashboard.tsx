@@ -19,24 +19,24 @@ export type NavItem = {
 export const navData: NavItem[] = [
   {
     title: 'Dashboard',
-    path: '/',
+    path: '/app',
     icon: icon('ic-analytics'),
   },
 
   // ================== ADMIN ==================
   {
     title: 'Salles',
-    path: '/salles',
+    path: '/app/salles',
     icon:  <HomeIcon sx={{ width: 24, height: 24 }} />, // ou ic-building si tu as
   },
   {
     title: 'Soutenances',
-    path: '/soutenances',
+    path: '/app/soutenances',
     icon: <CalendarMonthIcon sx={{ width: 24, height: 24 }} />,
   },
   {
     title: 'Utilisateurs',
-    path: '/utilisateurs',
+    path: '/app/utilisateurs',
     icon: icon('ic-user'),
     info: (
       <Label color="info" variant="inverted">
@@ -45,15 +45,5 @@ export const navData: NavItem[] = [
     ),
   },
 
-  // ================== AUTRES ==================
-  {
-    title: 'Blog',
-    path: '/blog',
-    icon: icon('ic-blog'),
-  },
-  {
-    title: 'Sign in',
-    path: '/sign-in',
-    icon: icon('ic-lock'),
-  },
+
 ];

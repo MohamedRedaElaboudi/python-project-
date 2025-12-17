@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..services.salles_service import lister_salles, creer_salle
+from ..services.salles_service import lister_salles, creer_salle,supprimer_salle
 
 salles_bp = Blueprint('salles_bp', __name__, url_prefix='/api/salles')
 
@@ -28,3 +28,14 @@ def add_new_salle():
         'id': salle.id,
         'name': salle.name
     }), 201
+
+
+@salles_bp.route('/<int:salle_id>', methods=['DELETE'])
+def delete_salle_route(salle_id):
+    """Supprime une salle"""
+    result = supprimer_salle(salle_id)
+
+    if result["success"]:
+        return jsonify({"message": result["message"]}), 200
+    else:
+        return jsonify({"error": result["message"]}), 400

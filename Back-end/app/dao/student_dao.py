@@ -1,5 +1,5 @@
-from app.extensions import db
-from app.models import Student
+from ..extensions import db
+from ..models import Student
 
 class StudentDAO:
 

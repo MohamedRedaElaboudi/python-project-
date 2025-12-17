@@ -1,31 +1,45 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+/* ============================
+   IMPORTS (ESLint OK)
+============================ */
+
 import { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 import {
+  AppBar,
+  Avatar,
+  Badge,
   Box,
+  Divider,
   Drawer,
+  IconButton,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
-  AppBar,
-  Badge,
-  Avatar,
-  Divider,
-  IconButton,
   Menu,
   MenuItem,
+  Toolbar,
+  Typography,
 } from "@mui/material";
 
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
+import PersonIcon from "@mui/icons-material/Person";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+
+/* ============================
+   CONSTANTES
+============================ */
 
 const drawerWidth = 260;
+
+/* ============================
+   COMPONENT
+============================ */
 
 export default function StudentLayout() {
   const nav = useNavigate();
@@ -35,6 +49,7 @@ export default function StudentLayout() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [darkMode, setDarkMode] = useState(false);
 
+  /* ================= LOAD USER & THEME ================= */
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -47,11 +62,18 @@ export default function StudentLayout() {
     localStorage.setItem("darkMode", darkMode.toString());
   }, [darkMode]);
 
+  /* ================= ACTIONS ================= */
   const logout = () => {
     localStorage.clear();
     nav("/login");
   };
 
+  const goProfile = () => {
+    setAnchorEl(null);
+    nav("/student/profile");
+  };
+
+  /* ================= MENU ================= */
   const menuItems = [
     { label: "Dashboard", icon: <DashboardIcon />, path: "/student/dashboard" },
     { label: "Upload Rapport", icon: <UploadFileIcon />, path: "/student/upload" },
@@ -68,7 +90,7 @@ export default function StudentLayout() {
         color: darkMode ? "#E5E7EB" : "#111827",
       }}
     >
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <Drawer
         variant="permanent"
         sx={{
@@ -124,9 +146,9 @@ export default function StudentLayout() {
         </List>
       </Drawer>
 
-      {/* CONTENT */}
+      {/* ================= CONTENT ================= */}
       <Box sx={{ flexGrow: 1 }}>
-        {/* TOP BAR */}
+        {/* ================= TOP BAR ================= */}
         <AppBar
           position="static"
           elevation={0}
@@ -148,7 +170,7 @@ export default function StudentLayout() {
 
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
               <Avatar sx={{ bgcolor: darkMode ? "#1E3A8A" : "#2563EB" }}>
-                🎓
+                {user?.prenom?.[0] || "E"}
               </Avatar>
             </IconButton>
 
@@ -165,7 +187,19 @@ export default function StudentLayout() {
                   {user?.email}
                 </Typography>
               </Box>
+
               <Divider />
+
+              {/* ✅ PROFIL */}
+              <MenuItem onClick={goProfile}>
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                Mon profil
+              </MenuItem>
+
+              <Divider />
+
               <MenuItem onClick={logout} sx={{ color: "error.main" }}>
                 Déconnexion
               </MenuItem>
@@ -173,7 +207,7 @@ export default function StudentLayout() {
           </Toolbar>
         </AppBar>
 
-        {/* PAGE – FIX DARK MODE */}
+        {/* ================= PAGE ================= */}
         <Box
           sx={{
             p: 4,

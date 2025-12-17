@@ -1,25 +1,6 @@
+
 from datetime import timedelta, datetime
 from ..models import db, Salle, Soutenance
-
-class SoutenanceDAO:
-
-    @staticmethod
-    def get_all_soutenances():
-        return Soutenance.query.all()
-
-    @staticmethod
-    def create(student_id, salle_id, date_soutenance, heure_debut, duree_minutes):
-        nouvelle_soutenance = Soutenance(
-            student_id=student_id,
-            salle_id=salle_id,
-            date_soutenance=date_soutenance,
-            heure_debut=heure_debut,
-            duree_minutes=duree_minutes,
-            statut="planned"
-        )
-        db.session.add(nouvelle_soutenance)
-        db.session.commit()
-        return nouvelle_soutenance
 
     @staticmethod
     def get_all_by_student(student_id):
@@ -49,6 +30,51 @@ class SoutenanceDAO:
             db.func.ADDTIME(Soutenance.heure_debut, db.func.SEC_TO_TIME(Soutenance.duree_minutes * 60)) > heure_debut
         ).scalar_subquery()
 
-        salles_disponibles = Salle.query.filter(Salle.id.notin_(salles_occupees_ids)).all()
-        
-        return salles_disponibles
+def terminer_soutenance(soutenance_id: int):
+    soutenance = Soutenance.query.get(soutenance_id)
+    if not soutenance:
+        return None
+    soutenance.statut = "terminée"
+    db.session.add(soutenance)
+    db.session.commit()
+    update_salles_disponibilite()  # Mettre à jour la disponibilité après la fin
+    return soutenance
+
+
+
+def get_available_salles(date_debut, duree_minutes):
+    date_fin = date_debut + timedelta(minutes=duree_minutes)
+    salles = Salle.query.all()
+    available = []
+
+    for salle in salles:
+        conflict = Soutenance.query.filter(
+            Soutenance.salle_id == salle.id,
+            Soutenance.date_debut < date_fin,
+            (Soutenance.date_debut + db.func.interval(Soutenance.duree_minutes, "MINUTE")) > date_debut
+        ).first()
+
+        if not conflict:
+            available.append(salle)
+
+    return available
+
+
+from ..models import Soutenance, Jury
+from sqlalchemy.orm import joinedload
+
+class SoutenanceDAO:
+
+    @staticmethod
+    def get_by_student(student_id):
+        return (
+            Soutenance.query
+            .options(
+                joinedload(Soutenance.salle),
+                joinedload(Soutenance.juries).joinedload(Jury.teacher)
+            )
+            .filter_by(student_id=student_id)
+            .order_by(Soutenance.date_soutenance.desc())
+            .first()
+        )
+

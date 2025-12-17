@@ -6,8 +6,9 @@ import { useBoolean } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
-
+import { Outlet } from 'react-router-dom';
 import { _langs, _notifications } from 'src/_mock';
+import { HeaderUserAvatar } from './header-user-avatar';
 
 import { NavMobile, NavDesktop } from './nav';
 import { layoutClasses } from '../core/classes';
@@ -51,61 +52,39 @@ export function DashboardLayout({
 
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const renderHeader = () => {
-    const headerSlotProps: HeaderSectionProps['slotProps'] = {
-      container: {
-        maxWidth: false,
-      },
-    };
-
-    const headerSlots: HeaderSectionProps['slots'] = {
-      topArea: (
-        <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-          This is an info Alert.
-        </Alert>
-      ),
+ const renderHeader = () => (
+  <HeaderSection
+    disableElevation
+    layoutQuery={layoutQuery}
+    sx={{
+      position: 'relative',     // ✅ clé du problème
+      backdropFilter: 'none',   // supprime le blur
+      backgroundColor: 'background.default',
+    }}
+    slots={{
       leftArea: (
         <>
-          {/** @slot Nav mobile */}
           <MenuButton
             onClick={onOpen}
-            sx={{ mr: 1, ml: -1, [theme.breakpoints.up(layoutQuery)]: { display: 'none' } }}
+            sx={{
+              mr: 1,
+              ml: -1,
+              [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
+            }}
           />
           <NavMobile data={navData} open={open} onClose={onClose} />
         </>
       ),
-      rightArea: (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.75 } }}>
-          {/** @slot Searchbar */}
-          <Searchbar />
+      rightArea: <HeaderUserAvatar />,
+    }}
+  />
+);
 
-          {/** @slot Language popover */}
-          <LanguagePopover data={_langs} />
 
-          {/** @slot Notifications popover */}
-          <NotificationsPopover data={_notifications} />
-
-          {/** @slot Account drawer */}
-          <AccountPopover data={_account} />
-        </Box>
-      ),
-    };
-
-    return (
-      <HeaderSection
-        disableElevation
-        layoutQuery={layoutQuery}
-        {...slotProps?.header}
-        slots={{ ...headerSlots, ...slotProps?.header?.slots }}
-        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
-        sx={slotProps?.header?.sx}
-      />
-    );
-  };
 
   const renderFooter = () => null;
 
-  const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
+  const renderMain = () => <MainSection {...slotProps?.main}><Outlet /></MainSection>;
 
   return (
     <LayoutSection

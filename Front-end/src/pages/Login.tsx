@@ -61,11 +61,9 @@ export default function Login() {
         case "jury":
           nav("/jury/home");
           break;
-        case "chef":
-          nav("/chef/home");
-          break;
+
         case "admin":
-          nav("/admin/home");
+          nav("/app");
           break;
         default:
           nav("/");
@@ -82,7 +80,7 @@ export default function Login() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #0D47A1, #1976D2, #42A5F5)",
+        background: "linear-gradient(135deg, #EEF2FF, #F8FAFC)",
       }}
     >
       <Card
@@ -94,6 +92,7 @@ export default function Login() {
           background: "rgba(255,255,255,0.9)",
         }}
       >
+          
         {/* LOGO */}
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <img src="/assets/logo.png" alt="ENSIAS Logo" style={{ width: 180 }} />
