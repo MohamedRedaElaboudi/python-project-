@@ -6,7 +6,7 @@ import Avatar from '@mui/material/Avatar';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid';
 
 import LinearProgress from '@mui/material/LinearProgress';
 import { useTheme } from '@mui/material/styles';
@@ -58,7 +58,7 @@ export default function JuryDashboard() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5001/api/jury/dashboard', {
+                const response = await axios.get('http://localhost:5000/api/jury/dashboard', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setData(response.data);
@@ -86,21 +86,21 @@ export default function JuryDashboard() {
 
             <Grid container spacing={3}>
                 {/* Global KPIs */}
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Rapports Assignés" value={kpis.total_assigned} color="info" />
                 </Grid>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="En Attente" value={kpis.pending} color="warning" />
                 </Grid>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Évalués" value={kpis.evaluated} color="success" />
                 </Grid>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <KpiCard title="Moyenne Notes" value={kpis.avg_grade} color="secondary" />
                 </Grid>
 
                 {/* Upcoming Soutenances */}
-                <Grid xs={12} md={8}>
+                <Grid item xs={12} md={8}>
                     <Card sx={{ p: 3, height: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 3 }}>
                             Prochaines Soutenances
@@ -118,7 +118,7 @@ export default function JuryDashboard() {
                 </Grid>
 
                 {/* Info / Quick Actions */}
-                <Grid xs={12} md={4}>
+                <Grid item xs={12} md={4}>
                     <Card sx={{ p: 3, height: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 3 }}>
                             Information

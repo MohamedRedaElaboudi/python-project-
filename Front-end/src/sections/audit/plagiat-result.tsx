@@ -1,6 +1,6 @@
 
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -38,7 +38,7 @@ export function PlagiatResult({ result }: Props) {
     return (
         <Grid container spacing={3}>
             {/* 1. Global Score Card */}
-            <Grid xs={12}>
+            <Grid item xs={12}>
                 <Card sx={{ p: 3, textAlign: 'center', boxShadow: 3 }}>
                     <Typography variant="h6" gutterBottom>Score de Similitude Global</Typography>
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -58,7 +58,7 @@ export function PlagiatResult({ result }: Props) {
             </Grid>
 
             {/* 2. AI Score */}
-            <Grid xs={12} md={6}>
+            <Grid item xs={12} md={6}>
                 <Card sx={{ height: '100%', border: '1px solid #e0e0e0' }}>
                     <CardHeader
                         title="Détection IA"
@@ -74,7 +74,7 @@ export function PlagiatResult({ result }: Props) {
             </Grid>
 
             {/* 3. Coverage Stats */}
-            <Grid xs={12} md={6}>
+            <Grid item xs={12} md={6}>
                 <Card sx={{ height: '100%', border: '1px solid #e0e0e0' }}>
                     <CardHeader
                         title="Couverture"
@@ -92,7 +92,7 @@ export function PlagiatResult({ result }: Props) {
             </Grid>
 
             {/* 4. Sources List */}
-            <Grid xs={12}>
+            <Grid item xs={12}>
                 <Card>
                     <CardHeader
                         title="Sources Détectées"

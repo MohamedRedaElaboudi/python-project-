@@ -26,7 +26,7 @@ export default function MyReports() {
         const fetchReports = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5001/api/jury/reports', {
+                const response = await axios.get('http://localhost:5000/api/jury/reports', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setReports(response.data);

@@ -23,6 +23,11 @@ import StudentSoutenance from "./pages/student/soutenance";
 import StudentProfile from "./pages/student/StudentProfile";
 import EditStudentProfile from "./pages/student/EditStudentProfile";
 
+import JuryLayout from "./pages/jury/JuryLayout";
+import JuryDashboard from "./pages/jury/JuryDashboard";
+import MyReports from "./pages/jury/MyReports";
+import EvaluationPage from "./pages/jury/Evaluation";
+
 import { DashboardLayout } from 'src/layouts/dashboard';
 import { AuthLayout } from 'src/layouts/auth';
 
@@ -99,8 +104,16 @@ export default function AppRouter() {
               <Route path="mes-rapports" element={<MesRapports />} />
               <Route path="soutenance" element={<StudentSoutenance />} />
               <Route path="profile" element={<StudentProfile />} />
-            <Route path="profile/edit" element={<EditStudentProfile />} />
+              <Route path="profile/edit" element={<EditStudentProfile />} />
             </Route>
+          </Route>
+
+          {/* ---------------- Jury routes ---------------- */}
+          <Route path="/jury" element={<JuryLayout />}>
+            <Route path="dashboard" element={<JuryDashboard />} />
+            <Route path="assigned-reports" element={<MyReports />} />
+            <Route path="evaluation/:rapportId" element={<EvaluationPage />} />
+            <Route index element={<Navigate to="/jury/dashboard" replace />} />
           </Route>
 
           {/* 404 */}

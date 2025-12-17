@@ -59,7 +59,7 @@ export default function Login() {
           nav("/teacher/home");
           break;
         case "jury":
-          nav("/jury/home");
+          nav("/jury/dashboard");
           break;
 
         case "admin":
@@ -92,7 +92,7 @@ export default function Login() {
           background: "rgba(255,255,255,0.9)",
         }}
       >
-          
+
         {/* LOGO */}
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <img src="/assets/logo.png" alt="ENSIAS Logo" style={{ width: 180 }} />

@@ -178,10 +178,20 @@ def get_evaluation_details(user_id, rapport_id):
             "comment": grade.comment if grade else ""
         })
     
+    # Determine soutenance_id safely
+    soutenance = None
+    if evaluation.rapport:
+        # Check if backref is list or scalar
+        rels = evaluation.rapport.soutenance
+        if isinstance(rels, list):
+             soutenance = rels[0] if rels else None
+        else:
+             soutenance = rels
+
     return {
         "id": evaluation.id,
         "rapport_id": evaluation.rapport_id,
-        "soutenance_id": evaluation.rapport.soutenance.id if evaluation.rapport and evaluation.rapport.soutenance else None,
+        "soutenance_id": soutenance.id if soutenance else None,
         "statut": evaluation.statut,
         "global_comment": evaluation.global_comment,
         "final_note": float(evaluation.final_note) if evaluation.final_note else None,

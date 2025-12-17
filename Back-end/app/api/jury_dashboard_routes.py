@@ -53,8 +53,13 @@ def get_dashboard_data():
             "upcoming_soutenances": upcoming
         }), 200
     except Exception as e:
+        import traceback
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Error in get_dashboard_data: {e}\n")
+            f.write(traceback.format_exc())
+            f.write("\n" + "="*50 + "\n")
         print(f"Error in get_dashboard_data: {e}")
-        return jsonify({"message": "Server error"}), 500
+        return jsonify({"message": "Server error", "details": str(e)}), 500
 
 @jury_dashboard_bp.route('/reports', methods=['GET'])
 @jwt_required()
@@ -115,6 +120,9 @@ def seed_criteria():
             db.session.commit()
             return jsonify({"message": "Criteria seeded"}), 201
         return jsonify({"message": "Criteria already exist"}), 200
+    except Exception as e:
+        print(f"Error seeding criteria: {e}")
+        return jsonify({"message": "Server error"}), 500
 @jury_dashboard_bp.route('/plagiat/analyze/<int:rapport_id>', methods=['POST'])
 @jwt_required()
 def analyze_plagiat(rapport_id):

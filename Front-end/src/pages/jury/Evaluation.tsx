@@ -57,7 +57,7 @@ export default function EvaluationPage() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:5001/api/jury/evaluation/${rapportId}`, {
+                const response = await axios.get(`http://localhost:5000/api/jury/evaluation/${rapportId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setData(response.data);
@@ -116,7 +116,7 @@ export default function EvaluationPage() {
                 submit: submit
             };
 
-            await axios.post('http://localhost:5001/api/jury/evaluation', payload, {
+            await axios.post('http://localhost:5000/api/jury/evaluation', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -144,7 +144,7 @@ export default function EvaluationPage() {
             const token = localStorage.getItem('token');
             // Using soutenance ID for audit, but backend might expect rapportId actually based on previous fix
             // But wait, the previous fix used soutenance_id.
-            const response = await axios.get(`http://localhost:5001/api/jury/evaluation/${data.soutenance_id}/audit`, {
+            const response = await axios.get(`http://localhost:5000/api/jury/evaluation/${data.soutenance_id}/audit`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setAuditResult(response.data);

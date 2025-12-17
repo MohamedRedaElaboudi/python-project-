@@ -1,5 +1,5 @@
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -27,7 +27,7 @@ export function AuditResult({ result }: Props) {
   return (
     <Grid container spacing={3}>
       {/* 1. Résumé */}
-      <Grid xs={12}>
+      <Grid item xs={12}>
         <Card sx={{ boxShadow: 3 }}>
           <CardHeader
             title="Résumé du rapport"
@@ -43,7 +43,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 2. Audit de la FORME */}
-      <Grid xs={12} md={6}>
+      <Grid item xs={12} md={6}>
         <Card sx={{ border: '1px solid', borderColor: 'error.light', height: '100%' }}>
           <CardHeader
             title="Audit de la FORME"
@@ -74,7 +74,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 3. Audit du FOND */}
-      <Grid xs={12} md={6}>
+      <Grid item xs={12} md={6}>
         <Card sx={{ border: '1px solid', borderColor: 'warning.light', height: '100%' }}>
           <CardHeader
             title="Audit du FOND (Contenu)"
@@ -111,7 +111,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 4. Avis Global */}
-      <Grid xs={12}>
+      <Grid item xs={12}>
         <Card sx={{ bgcolor: 'grey.800', color: 'common.white' }}>
           <CardHeader
             title="Avis global du Jury"

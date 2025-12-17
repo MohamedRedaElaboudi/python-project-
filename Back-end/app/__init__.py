@@ -23,7 +23,8 @@ def create_app():
 
     db.init_app(app)
     # Autoriser React à accéder au backend
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3039"}})
+    # Autoriser React à accéder au backend (Allowing all for dev to fix CORS issues)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # Enregistrer les blueprints
     app.register_blueprint(salles_bp)

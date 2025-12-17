@@ -34,7 +34,7 @@ export default function JuryLayout() {
   };
 
   const navItems = [
-    { title: 'Dashboard', path: '/jury', icon: <DashboardIcon /> },
+    { title: 'Dashboard', path: '/jury/dashboard', icon: <DashboardIcon /> },
     { title: 'Rapports Assignés', path: '/jury/assigned-reports', icon: <AssignmentIcon /> },
   ];
 

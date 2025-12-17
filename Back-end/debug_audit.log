@@ -1,0 +1,7 @@
+Attempting audit for rapport: C:\Users\21261\python-project-\Back-end\app\uploads\663f68cbfba04ce9a834cf633fd30a91_rapport.pdf
+Exists: True
+ERROR in audit_report: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information.
