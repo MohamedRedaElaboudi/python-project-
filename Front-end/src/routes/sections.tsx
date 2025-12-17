@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router';
 
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
@@ -25,6 +25,13 @@ export const SallesPage = lazy(() => import('src/pages/SallesPage'));
 export const SoutenancesPage = lazy(() => import('src/pages/SoutenancesPage'));
 export const UtilisateursPage = lazy(() => import('src/pages/UtilisateursPage'));
 
+// Jury
+import JuryGuard from 'src/components/JuryGuard';
+export const JuryLayout = lazy(() => import('src/pages/jury/JuryLayout'));
+export const JuryDashboardPage = lazy(() => import('src/pages/jury/JuryDashboard'));
+export const MyReportsPage = lazy(() => import('src/pages/jury/MyReports'));
+export const EvaluationPage = lazy(() => import('src/pages/jury/Evaluation'));
+
 const renderFallback = () => (
   <Box
     sx={{
@@ -46,37 +53,55 @@ const renderFallback = () => (
 );
 
 export const routesSection: RouteObject[] = [{
-    element: (
-      <DashboardLayout>
-        <Suspense fallback={renderFallback()}>
-          <Outlet />
-        </Suspense>
-      </DashboardLayout>
-    ),
+  element: (
+    <DashboardLayout>
+      <Suspense fallback={renderFallback()}>
+        <Outlet />
+      </Suspense>
+    </DashboardLayout>
+  ),
 
-    children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'user', element: <UserPage /> },
-      { path: 'products', element: <ProductsPage /> },
-      { path: 'blog', element: <BlogPage /> },
+  children: [
+    { index: true, element: <DashboardPage /> },
+    { path: 'user', element: <UserPage /> },
+    { path: 'products', element: <ProductsPage /> },
+    { path: 'blog', element: <BlogPage /> },
     { path: 'salles', element: <SallesPage /> },
     { path: 'soutenances', element: <SoutenancesPage /> },
     { path: 'utilisateurs', element: <UtilisateursPage /> },
-    ],
-  },
+  ],
+},
+
+// Jury Routes
+{
+  path: 'jury',
+  element: (
+    <JuryGuard>
+      <Suspense fallback={renderFallback()}>
+        <JuryLayout />
+      </Suspense>
+    </JuryGuard>
+  ),
+  children: [
+    { element: <Navigate to="dashboard" replace />, index: true },
+    { path: 'dashboard', element: <JuryDashboardPage /> },
+    { path: 'assigned-reports', element: <MyReportsPage /> },
+    { path: 'evaluation/:soutenanceId', element: <EvaluationPage /> },
+  ],
+},
 
 
-  {
-    path: 'sign-in',
-    element: (
-      <AuthLayout>
-        <SignInPage />
-      </AuthLayout>
-    ),
-  },
-  {
-    path: '404',
-    element: <Page404 />,
-  },
-  { path: '*', element: <Page404 /> },
+{
+  path: 'sign-in',
+  element: (
+    <AuthLayout>
+      <SignInPage />
+    </AuthLayout>
+  ),
+},
+{
+  path: '404',
+  element: <Page404 />,
+},
+{ path: '*', element: <Page404 /> },
 ];

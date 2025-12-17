@@ -56,6 +56,8 @@ class Soutenance(db.Model):
         db.ForeignKey('salles.id'),
         nullable=True
     )
+    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=True)
+    rapport = db.relationship("Rapport", backref="soutenance", uselist=False)
 
     # Date et durée
     date_soutenance = db.Column(db.Date, nullable=False)
@@ -110,6 +112,7 @@ class Rapport(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     auteur_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    titre = db.Column(db.String(255), nullable=True)
     filename = db.Column(db.String(200), nullable=False)
     storage_path = db.Column(db.String(300), nullable=False)
     status = db.Column(db.String(20), default="pending")
@@ -169,11 +172,66 @@ class Student(db.Model):
     filiere = db.Column(db.String(100))
     niveau = db.Column(db.String(50))
 
+
     # Relation inverse vers User
     user = db.relationship(
         "User",
         back_populates="student_profile"
     )
+
+# --- JURY & EVALUATION EXTENSIONS ---
+
+class Evaluation(db.Model):
+    __tablename__ = 'evaluations'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False)
+    jury_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=False)
+    statut = db.Column(db.String(20), default='pending') # pending, completed
+    final_note = db.Column(db.Float, nullable=True)
+    global_comment = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    rapport = db.relationship('Rapport', backref='evaluations')
+    jury = db.relationship('User', backref='evaluations_given')
+    grades = db.relationship('EvaluationGrade', back_populates='evaluation', cascade='all, delete-orphan')
+
+class EvaluationCriterion(db.Model):
+    __tablename__ = 'evaluation_criteria'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    max_score = db.Column(db.Float, nullable=False)
+
+class EvaluationGrade(db.Model):
+    __tablename__ = 'evaluation_grades'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    evaluation_id = db.Column(db.BigInteger, db.ForeignKey('evaluations.id'), nullable=False)
+    criterion_id = db.Column(db.Integer, db.ForeignKey('evaluation_criteria.id'), nullable=False)
+    score = db.Column(db.Float)
+    comment = db.Column(db.Text)
+
+    evaluation = db.relationship('Evaluation', back_populates='grades')
+    criterion = db.relationship('EvaluationCriterion')
+
+class PlagiatAnalysis(db.Model):
+    __tablename__ = 'plagiat_analyses'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False)
+    similarity_score = db.Column(db.Float)
+    status = db.Column(db.String(50), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    matches = db.relationship('PlagiatMatch', back_populates='analysis', cascade='all, delete-orphan')
+
+class PlagiatMatch(db.Model):
+    __tablename__ = 'plagiat_matches'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    analysis_id = db.Column(db.BigInteger, db.ForeignKey('plagiat_analyses.id'), nullable=False)
+    source_url = db.Column(db.String(500))
+    similarity = db.Column(db.Float)
+    content_snippet = db.Column(db.Text)
+    
+    analysis = db.relationship('PlagiatAnalysis', back_populates='matches')
 
 
 
