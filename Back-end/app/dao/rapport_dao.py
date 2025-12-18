@@ -34,6 +34,14 @@ class RapportDAO:
             storage_path=storage_path
         )
         db.session.add(rapport)
+        db.session.flush() # Get ID
+
+        # Link to Soutenance
+        from app.models import Soutenance
+        soutenance = Soutenance.query.filter_by(student_id=auteur_id).first()
+        if soutenance:
+            soutenance.rapport_id = rapport.id
+        
         db.session.commit()
         return rapport
 

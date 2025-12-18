@@ -120,6 +120,16 @@ class Rapport(db.Model):
 
     author = db.relationship("User", foreign_keys=[auteur_id])
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "titre": self.titre,
+            "filename": self.filename,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "storage_path": self.storage_path
+        }
+
 class Jury(db.Model):
     __tablename__ = 'juries'
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)

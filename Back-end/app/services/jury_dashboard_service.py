@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from sqlalchemy import func, case
 from app.models import db, Jury, Soutenance, Rapport, Evaluation, EvaluationGrade, EvaluationCriterion
 from app.extensions import db
@@ -61,8 +62,13 @@ def get_upcoming_soutenances(user_id):
 
     results = []
     for s in soutenances:
-        # Check if today is the day and time has passed, if so skip? 
-        # But 'planned' status should handle it.
+        # Check if report file exists physically
+        if s.rapport and s.rapport.storage_path:
+             if not os.path.exists(s.rapport.storage_path):
+                 continue
+        else:
+             # User asked to "afficher exactement les rapport exist", so skip if no file.
+             continue
         
         # Get student info safely
         student_name = "N/A"
@@ -80,7 +86,9 @@ def get_upcoming_soutenances(user_id):
             "filiere": filiere,
             "date": s.date_soutenance.isoformat(),
             "time": s.heure_debut.isoformat(),
-            "salle": s.salle.name if s.salle else "N/A"
+            "salle": s.salle.name if s.salle else "N/A",
+            "storage_path": s.rapport.storage_path if s.rapport else None,
+            "filename": s.rapport.filename if s.rapport else None
         })
     
     return results
@@ -105,7 +113,17 @@ def get_assigned_reports(user_id):
     ).order_by(Soutenance.date_soutenance.desc()).all()
 
     reports_data = []
+    seen_reports = set()
     for rapport, soutenance, evaluation in results:
+        # Check if report file exists
+        if not rapport.storage_path or not os.path.exists(rapport.storage_path):
+            continue
+            
+        # Deduplication
+        if rapport.id in seen_reports:
+            continue
+        seen_reports.add(rapport.id)
+
         student_name = "N/A"
         filiere = "N/A"
         niveau = "N/A"
@@ -126,7 +144,9 @@ def get_assigned_reports(user_id):
             "soutenance_status": soutenance.statut,
             "evaluation_status": evaluation.statut if evaluation else "pending",
             "note": float(evaluation.final_note) if evaluation and evaluation.final_note else None,
-            "soutenance_id": soutenance.id
+            "soutenance_id": soutenance.id,
+            "storage_path": rapport.storage_path,
+            "filename": rapport.filename
         })
         
     return reports_data

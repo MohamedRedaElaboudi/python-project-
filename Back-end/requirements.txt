@@ -1,0 +1,10 @@
+flask
+flask-cors
+google-generativeai
+python-dotenv
+werkzeug
+flask-jwt-extended
+flask-sqlalchemy
+mysql-connector-python
+requests
+pypdf

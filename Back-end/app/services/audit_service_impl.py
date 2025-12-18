@@ -10,6 +10,7 @@ load_dotenv()
 
 # Configure API
 API_KEY = os.getenv("GEMINI_API_KEY")
+
 if not API_KEY:
     print("❌ ERREUR : Pas de clé API dans .env")
 else:
@@ -90,8 +91,37 @@ def analyze_pdf(pdf_path):
         formatted_prompt = PROMPT_AUDIT.format(rules=ENSIASD_RULES)
         
         print("🤖 Audit complet (Forme + Fond) en cours...")
-        response = model.generate_content([gemini_file, formatted_prompt])
         
+        # Retry logic for 429 Too Many Requests
+        max_retries = 3
+        retry_delay = 5
+        
+        for attempt in range(max_retries):
+            try:
+                response = model.generate_content([gemini_file, formatted_prompt])
+                break # Success
+            except Exception as e:
+                # Check for 429 in string representation as Google API might wrap it
+                if "429" in str(e) and attempt < max_retries - 1:
+                    print(f"⚠️ Quota dépassé (429). Nouvelle tentative dans {retry_delay}s... ({attempt + 1}/{max_retries})")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2 # Exponential backoff
+                else:
+                    raise e # Re-raise other errors or if retries exhausted
+        
+        # Check if response was blocked or empty
+        if not response.candidates:
+            print("⚠️ Response blocked or empty.")
+            try:
+                print(f"Prompt feedback: {response.prompt_feedback}")
+            except:
+                pass
+            return {
+                "summary": "L'analyse a été bloquée par le fournisseur d'IA ou le document est illisible.",
+                "layout_validation": {"score": "0/5", "issues": ["Contenu non analysable par l'IA."]},
+                "content_validation": {"score": "0/5", "strengths": [], "weaknesses": ["Document vide ou protégé"], "general_comment": "Impossible de traiter ce fichier."}
+            }
+
         cleaned_text = clean_json_text(response.text)
         
         try:
@@ -108,5 +138,9 @@ def analyze_pdf(pdf_path):
 
     except Exception as e:
         print(f"Error in analyze_pdf: {e}")
-        # Return error structure instead of raising to avoid 500 in frontend if possible, or raise
-        raise e
+        # Graceful fallback for any other error
+        return {
+             "summary": "Erreur technique lors de l'analyse.",
+             "layout_validation": {"score": "?", "issues": [str(e)]},
+             "content_validation": {"score": "?", "strengths": [], "weaknesses": ["Erreur serveur"], "general_comment": "Veuillez réessayer plus tard."}
+        }

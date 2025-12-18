@@ -243,17 +243,24 @@ class PlagiarismDetector:
 import asyncio
 from app.models import Rapport, PlagiatAnalysis, PlagiatMatch, db
 import os
-import PyPDF2  # Ensure this is installed or use text extraction util
+import pypdf
 
 def extract_text_from_pdf(pdf_path):
     text = ""
     try:
         with open(pdf_path, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                text += page.extract_text() + "\n"
+            try:
+                reader = pypdf.PdfReader(f)
+                for page in reader.pages:
+                    extracted = page.extract_text()
+                    if extracted:
+                        text += extracted + "\n"
+            except Exception as e:
+                print(f"pypdf Error: {e}")
+                return ""
     except Exception as e:
-        print(f"Error reading PDF: {e}")
+        print(f"Error reading PDF file: {e}")
+        return ""
     return text
 
 def analyze_plagiarism(rapport_id):
@@ -339,6 +346,42 @@ def analyze_plagiarism(rapport_id):
                 "url": m.get('url'),
                 "text": m.get('original_text', '')[:50] + "...",
                 "matched_text": m.get('matched_text', '')[:50] + "...",
+                "page": 1
+            }
+            for m in matches
+        ]
+    }
+
+def get_plagiarism_result(rapport_id):
+    """
+    Retrieve existing plagiarism analysis for a report.
+    """
+    analysis = PlagiatAnalysis.query.filter_by(rapport_id=rapport_id, status="completed").order_by(PlagiatAnalysis.created_at.desc()).first()
+    
+    if not analysis:
+        return None
+
+    # Get matches
+    matches = PlagiatMatch.query.filter_by(analysis_id=analysis.id).all()
+    rapport = Rapport.query.get(rapport_id)
+    
+    return {
+        "student": rapport.author.name if rapport and rapport.author else "Unknown",
+        "rapport": rapport.titre if rapport else "Untitled",
+        "similarity": analysis.similarity_score,
+        "originality": 100 - (analysis.similarity_score or 0),
+        "risk": "low" if (analysis.similarity_score or 0) < 20 else "medium" if (analysis.similarity_score or 0) < 50 else "high", # Re-calculate or store risk
+        "ai_score": 0, # Stored? No, assuming 0 or add col
+        "chunks_analyzed": 5,
+        "chunks_with_matches": len(matches),
+        "matches_saved": len(matches),
+        "sources": [
+            {
+                "source": "Web/DB",
+                "similarity": m.similarity or 0,
+                "url": m.source_url,
+                "text": "...",
+                "matched_text": m.content_snippet or "",
                 "page": 1
             }
             for m in matches

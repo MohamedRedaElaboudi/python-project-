@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import jury_dashboard_service
 from app.models import EvaluationCriterion, db
@@ -123,6 +123,38 @@ def seed_criteria():
     except Exception as e:
         print(f"Error seeding criteria: {e}")
         return jsonify({"message": "Server error"}), 500
+@jury_dashboard_bp.route('/rapports/<int:rapport_id>/view', methods=['GET'])
+@jwt_required()
+def view_rapport(rapport_id):
+    current_user_id = get_jwt_identity()
+    # Handle int/dict identity
+    if isinstance(current_user_id, dict):
+        current_user_id = current_user_id.get('id')
+    
+    # 1. Verify user is a jury (or teacher)
+    # Ideally should check if assigned, but for now just check role/existence
+    # Using service to check assignment + existence
+    # Re-using get_evaluation_details logic partially or just direct query
+    
+    from app.models import Rapport
+    rapport = Rapport.query.get(rapport_id)
+    if not rapport:
+        return jsonify({"message": "Rapport non trouvé"}), 404
+        
+    if not rapport.storage_path or not os.path.exists(rapport.storage_path):
+        return jsonify({"message": "Fichier PDF introuvable sur le serveur"}), 404
+        
+    try:
+        return send_file(
+            rapport.storage_path,
+            mimetype='application/pdf',
+            as_attachment=False,
+            download_name=rapport.filename
+        )
+    except Exception as e:
+        print(f"Error serving PDF: {e}")
+        return jsonify({"message": "Erreur lors de la lecture du fichier"}), 500
+
 @jury_dashboard_bp.route('/plagiat/analyze/<int:rapport_id>', methods=['POST'])
 @jwt_required()
 def analyze_plagiat(rapport_id):

@@ -43,7 +43,7 @@ export const plagiatService = {
     analyzeReport: async (rapportId: string | number): Promise<PlagiatResponse> => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axiosInstance.post(`/api/plagiat/analyze/${rapportId}`, {}, {
+            const response = await axiosInstance.post(`/api/jury/plagiat/analyze/${rapportId}`, {}, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
