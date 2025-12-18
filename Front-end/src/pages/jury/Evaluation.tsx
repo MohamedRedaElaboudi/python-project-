@@ -69,6 +69,16 @@ export default function EvaluationPage() {
             }
         };
         fetchData();
+
+        // Fetch existing plagiarism result
+        const fetchPlagiat = async () => {
+            const result = await plagiatService.getAnalysis(rapportId!);
+            if (result && result.analysis) {
+                setPlagiatResult(result.analysis);
+            }
+        };
+        fetchPlagiat();
+
     }, [rapportId]);
 
     const handleGradeChange = (criterionId: number, value: number) => {

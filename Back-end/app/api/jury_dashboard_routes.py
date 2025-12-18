@@ -167,3 +167,15 @@ def analyze_plagiat(rapport_id):
     except Exception as e:
         print(f"Error in analyze_plagiat: {e}")
         return jsonify({"message": str(e)}), 500
+
+@jury_dashboard_bp.route('/plagiat/result/<int:rapport_id>', methods=['GET'])
+@jwt_required()
+def get_plagiarism_result(rapport_id):
+    try:
+        result = plagiat_service.get_plagiarism_result(rapport_id)
+        if not result:
+             return jsonify({"message": "No analysis found"}), 404
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error in get_plagiarism_result: {e}")
+        return jsonify({"message": str(e)}), 500

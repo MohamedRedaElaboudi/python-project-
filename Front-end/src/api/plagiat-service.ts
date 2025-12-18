@@ -53,5 +53,19 @@ export const plagiatService = {
             console.error("Erreur d'analyse plagiat:", error);
             throw error;
         }
+    },
+
+    getAnalysis: async (rapportId: string | number): Promise<PlagiatResponse | null> => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axiosInstance.get(`/api/jury/plagiat/result/${rapportId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return { analysis: response.data, status: 'completed', matches_saved: response.data.matches_saved, analysis_id: 0 };
+        } catch (error) {
+            return null;
+        }
     }
 };
