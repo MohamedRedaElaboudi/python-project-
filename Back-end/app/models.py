@@ -224,24 +224,7 @@ class EvaluationGrade(db.Model):
     evaluation = db.relationship('Evaluation', back_populates='grades')
     criterion = db.relationship('EvaluationCriterion')
 
-class PlagiatAnalysis(db.Model):
-    __tablename__ = 'plagiat_analyses'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False)
-    similarity_score = db.Column(db.Float)
-    status = db.Column(db.String(50), default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    matches = db.relationship('PlagiatMatch', back_populates='analysis', cascade='all, delete-orphan')
 
-class PlagiatMatch(db.Model):
-    __tablename__ = 'plagiat_matches'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    analysis_id = db.Column(db.BigInteger, db.ForeignKey('plagiat_analyses.id'), nullable=False)
-    source_url = db.Column(db.String(500))
-    similarity = db.Column(db.Float)
-    content_snippet = db.Column(db.Text)
-    
-    analysis = db.relationship('PlagiatAnalysis', back_populates='matches')
 
 
 

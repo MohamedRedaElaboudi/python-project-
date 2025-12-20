@@ -6,7 +6,7 @@ from app.models import EvaluationCriterion, db
 jury_dashboard_bp = Blueprint('jury_dashboard_bp', __name__, url_prefix='/api/jury')
 
 from app.services.audit_service_impl import analyze_pdf
-from app.services import jury_dashboard_service, plagiat_service
+from app.services import jury_dashboard_service
 from app.models import Soutenance
 import os
 
@@ -155,27 +155,4 @@ def view_rapport(rapport_id):
         print(f"Error serving PDF: {e}")
         return jsonify({"message": "Erreur lors de la lecture du fichier"}), 500
 
-@jury_dashboard_bp.route('/plagiat/analyze/<int:rapport_id>', methods=['POST'])
-@jwt_required()
-def analyze_plagiat(rapport_id):
-    try:
-        current_user_id = get_jwt_identity() # Can be used to log who requested logic
-        result = plagiat_service.analyze_plagiarism(rapport_id)
-        if "error" in result:
-             return jsonify(result), 400
-        return jsonify(result), 200
-    except Exception as e:
-        print(f"Error in analyze_plagiat: {e}")
-        return jsonify({"message": str(e)}), 500
 
-@jury_dashboard_bp.route('/plagiat/result/<int:rapport_id>', methods=['GET'])
-@jwt_required()
-def get_plagiarism_result(rapport_id):
-    try:
-        result = plagiat_service.get_plagiarism_result(rapport_id)
-        if not result:
-             return jsonify({"message": "No analysis found"}), 404
-        return jsonify(result), 200
-    except Exception as e:
-        print(f"Error in get_plagiarism_result: {e}")
-        return jsonify({"message": str(e)}), 500
