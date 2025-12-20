@@ -253,6 +253,12 @@ class PlagiatAnalysis(db.Model):
     ai_score = db.Column(db.Float, default=0.0)
     chunks_analyzed = db.Column(db.Integer, default=0)
     chunks_with_matches = db.Column(db.Integer, default=0)
+    
+    # Statistiques du texte
+    word_count = db.Column(db.Integer, default=0)
+    unique_words = db.Column(db.Integer, default=0)
+    readability_score = db.Column(db.Float, default=0.0)
+    detection_time = db.Column(db.Float, default=0.0)
 
     # Relations
     matches = db.relationship('PlagiatMatch', backref='analysis', cascade='all, delete-orphan')

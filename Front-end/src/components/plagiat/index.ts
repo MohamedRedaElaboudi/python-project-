@@ -32,4 +32,8 @@ export interface PlagiatAnalysisResult {
     originality: number;
     student?: string;
     rapport?: string;
+    word_count?: number;
+    unique_words?: number;
+    readability_score?: number;
+    detection_time?: number;
 }

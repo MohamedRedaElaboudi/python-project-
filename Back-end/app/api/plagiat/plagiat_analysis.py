@@ -403,6 +403,12 @@ def analyze_single(rapport_id):
         analysis.ai_score = result.get("ai_score", 0)
         analysis.chunks_analyzed = result.get("chunks_analyzed", 0)
         analysis.chunks_with_matches = result.get("chunks_with_matches", 0)
+        
+        # Sauvegarde des stats textuelles
+        analysis.word_count = result.get("word_count", 0)
+        analysis.unique_words = result.get("unique_words", 0)
+        analysis.readability_score = result.get("readability_score", 0.0)
+        analysis.detection_time = result.get("detection_time", 0.0)
 
         saved_matches = PlagiatMatch.query.filter_by(analysis_id=analysis.id).count()
 

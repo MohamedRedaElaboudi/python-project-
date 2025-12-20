@@ -10,6 +10,7 @@ import Grid from '@mui/material/Grid';
 
 import LinearProgress from '@mui/material/LinearProgress';
 import { useTheme } from '@mui/material/styles';
+import { PlagiarismTable } from '../../components/plagiat/PlagiarismTable';
 
 // KPI Card Component
 function KpiCard({ title, value, color = 'primary' }: { title: string, value: string | number, color?: string }) {
@@ -131,7 +132,12 @@ export default function JuryDashboard() {
                         </Typography>
                     </Card>
                 </Grid>
+
+                {/* Plagiarism Table (All Students) */}
+                <Grid xs={12}>
+                    <PlagiarismTable />
+                </Grid>
             </Grid>
-        </Container>
+        </Container >
     );
 }

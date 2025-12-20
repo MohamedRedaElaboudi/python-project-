@@ -9,6 +9,9 @@ import { PlagiatScoreCard } from './PlagiatScoreCard';
 import { PlagiatStats } from './PlagiatStats';
 import { RiskIndicator } from './RiskIndicator';
 import { SimilarityViewer } from './SimilarityViewer';
+import { DiffViewer } from './DiffViewer';
+import { PdfHighlighter } from './PdfHighlighter';
+import Button from '@mui/material/Button';
 
 interface Props {
     result: PlagiatAnalysisResult;
@@ -16,6 +19,7 @@ interface Props {
 
 export function PlagiatResult({ result }: Props) {
     const [selectedMatch, setSelectedMatch] = useState<any>(null);
+    const [showPdf, setShowPdf] = useState(false);
 
     if (!result) {
         return <Alert severity="info">Aucun résultat d'analyse disponible.</Alert>;
@@ -46,6 +50,8 @@ export function PlagiatResult({ result }: Props) {
                         totalMatches={totalMatches}
                         avgSimilarity={avgSimilarity}
                         highestSimilarity={result.sources?.length > 0 ? Math.max(...result.sources.map(m => m.similarity)) : 0}
+                        wordCount={result.word_count || 0}
+                        readabilityScore={result.readability_score || 0}
                     />
                 </Grid>
 
@@ -73,15 +79,60 @@ export function PlagiatResult({ result }: Props) {
                                         date={result.created_at || new Date().toISOString()}
                                         riskLevel={match.similarity > 70 ? 'high' : match.similarity > 40 ? 'medium' : 'low'}
                                     />
+                                    {selectedMatch?.id === match.id && (
+                                        <Box sx={{ mt: 2 }}>
+                                            <DiffViewer
+                                                original={match.matched_text || ''}
+                                                modified={match.text || match.content_snippet || ''}
+                                            />
+                                        </Box>
+                                    )}
                                 </Box>
                             ))}
                         </Grid>
                         <Grid size={{ xs: 12, md: 8 }}>
-                            {selectedMatch ? (
+                            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button
+                                    variant={showPdf ? "contained" : "outlined"}
+                                    onClick={() => setShowPdf(!showPdf)}
+                                >
+                                    {showPdf ? "Masquer PDF" : "Voir dans le PDF"}
+                                </Button>
+                            </Box>
+
+                            {showPdf && result.rapport ? (
+                                <Box sx={{ height: 600, mb: 2 }}>
+                                    <PdfHighlighter
+                                        pdfUrl={`http://localhost:5000/api/jury/rapports/${result.rapport}/view`}
+                                        matches={result.sources.map(m => ({
+                                            page: m.page || 1,
+                                            x: m.x || 0,
+                                            y: m.y || 0,
+                                            width: m.width || 0,
+                                            height: m.height || 0,
+                                            similarity: m.similarity,
+                                            text: m.content_snippet
+                                        }))}
+                                        selectedMatch={selectedMatch ? {
+                                            page: selectedMatch.page || 1,
+                                            x: selectedMatch.x || 0,
+                                            y: selectedMatch.y || 0,
+                                            width: selectedMatch.width || 0,
+                                            height: selectedMatch.height || 0,
+                                            similarity: selectedMatch.similarity,
+                                            text: selectedMatch.content_snippet
+                                        } : null}
+                                        onMatchSelect={(m: any) => {
+                                            const match = result.sources.find(s => s.content_snippet === m.text);
+                                            if (match) setSelectedMatch(match);
+                                        }}
+                                    />
+                                </Box>
+                            ) : selectedMatch ? (
                                 <SimilarityViewer match={selectedMatch} />
                             ) : (
                                 <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'background.neutral', borderRadius: 1 }}>
-                                    <Typography color="text.secondary">Sélectionnez une correspondance pour voir les détails.</Typography>
+                                    <Typography color="text.secondary">Sélectionnez une correspondance pour voir les détails ou ouvrez le PDF.</Typography>
                                 </Box>
                             )}
                         </Grid>

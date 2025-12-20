@@ -13,12 +13,16 @@ interface PlagiatStatsProps {
     totalMatches: number;
     avgSimilarity: number;
     highestSimilarity: number;
+    wordCount?: number;
+    readabilityScore?: number;
 }
 
 export const PlagiatStats: React.FC<PlagiatStatsProps> = ({
     totalMatches,
     avgSimilarity,
-    highestSimilarity
+    highestSimilarity,
+    wordCount,
+    readabilityScore
 }) => {
 
     return (
@@ -66,11 +70,24 @@ export const PlagiatStats: React.FC<PlagiatStatsProps> = ({
                                     sx={{ height: 8, borderRadius: 4 }}
                                 />
                             </Box>
+
+                            {/* Stats Textuelles (Nouveau) */}
+                            {(wordCount || 0) > 0 && (
+                                <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed', borderColor: 'divider' }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                        <Typography variant="caption" color="text.secondary">Mots</Typography>
+                                        <Typography variant="caption" fontWeight="bold">{wordCount}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="caption" color="text.secondary">Lisibilité</Typography>
+                                        <Typography variant="caption" fontWeight="bold">{readabilityScore}/100</Typography>
+                                    </Box>
+                                </Box>
+                            )}
                         </Stack>
                     </Grid>
                 </Grid>
             </CardContent>
-        </Card>
+        </Card >
     );
 };
-
