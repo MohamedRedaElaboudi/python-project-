@@ -230,3 +230,59 @@ class EvaluationGrade(db.Model):
 
 
 
+
+class PlagiatAnalysis(db.Model):
+    __tablename__ = 'plagiat_analyses'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False)
+    similarity_score = db.Column(db.Float, default=0.0)
+    originality_score = db.Column(db.Float, default=100.0)
+    risk_level = db.Column(db.String(50), default='none')  # none, low, medium, high
+    
+    total_matches = db.Column(db.Integer, default=0)
+    sources_count = db.Column(db.Integer, default=0)
+    
+    status = db.Column(db.String(50), default='pending')  # pending, processing, completed, error
+    error_message = db.Column(db.Text, nullable=True)
+    
+    analyzed_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Métriques détaillées
+    ai_score = db.Column(db.Float, default=0.0)
+    chunks_analyzed = db.Column(db.Integer, default=0)
+    chunks_with_matches = db.Column(db.Integer, default=0)
+
+    # Relations
+    matches = db.relationship('PlagiatMatch', backref='analysis', cascade='all, delete-orphan')
+    rapport = db.relationship('Rapport', backref=db.backref('plagiat_analysis', uselist=False))
+
+    def __repr__(self):
+        return f"<PlagiatAnalysis {self.id} for Rapport {self.rapport_id}>"
+
+class PlagiatMatch(db.Model):
+    __tablename__ = 'plagiat_matches'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    analysis_id = db.Column(db.BigInteger, db.ForeignKey('plagiat_analyses.id'), nullable=False)
+    
+    # Contenu matché
+    text = db.Column(db.Text)  # Le texte du rapport qui a matché
+    matched_text = db.Column(db.Text)  # Le texte trouvé ailleurs (source)
+    original_text = db.Column(db.Text) # Contexte original si disponible
+    
+    # Source
+    source_url = db.Column(db.String(500))
+    source = db.Column(db.String(100), default='web')  # web, database, etc.
+    
+    # Scores
+    similarity = db.Column(db.Float)  # Pourcentage de similarité pour ce match
+    score = db.Column(db.Float)       # Score brut si applicable
+    
+    # Localisation
+    page = db.Column(db.Integer)
+    chunk_index = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"<PlagiatMatch {self.id} {self.similarity}%>"

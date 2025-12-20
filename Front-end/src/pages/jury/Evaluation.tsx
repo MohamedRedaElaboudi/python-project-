@@ -29,6 +29,11 @@ import PdfViewer from 'src/components/PdfViewer';
 import { AuditResult } from 'src/sections/audit/audit-result';
 import { AnalysisResult } from 'src/api/audit-service';
 
+// Plagiat Imports
+import { PlagiatAnalysisResult } from 'src/components/plagiat';
+import { PlagiatResult } from 'src/components/plagiat/PlagiatResult';
+import { plagiatService } from 'src/api/plagiat-service';
+
 export default function EvaluationPage() {
     const { rapportId } = useParams();
     const navigate = useNavigate();
@@ -43,6 +48,11 @@ export default function EvaluationPage() {
     const [auditOpen, setAuditOpen] = useState(false);
     const [auditLoading, setAuditLoading] = useState(false);
     const [auditResult, setAuditResult] = useState<AnalysisResult | null>(null);
+
+    // Plagiat State
+    const [plagiatOpen, setPlagiatOpen] = useState(false);
+    const [plagiatLoading, setPlagiatLoading] = useState(false);
+    const [plagiatResult, setPlagiatResult] = useState<PlagiatAnalysisResult | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -60,6 +70,17 @@ export default function EvaluationPage() {
             }
         };
         fetchData();
+
+        // Fetch existing plagiarism result
+        const fetchPlagiat = async () => {
+            if (!rapportId) return;
+            const result = await plagiatService.getAnalysis(rapportId);
+            if (result && result.analysis) {
+                setPlagiatResult(result.analysis);
+            }
+        };
+        fetchPlagiat();
+
     }, [rapportId]);
 
     const handleGradeChange = (criterionId: number, value: number) => {
@@ -146,8 +167,34 @@ export default function EvaluationPage() {
         }
     };
 
+    const handlePlagiat = async () => {
+        const rId = data?.rapport_id || rapportId;
+        if (!rId) return;
+
+        setPlagiatOpen(true);
+        if (plagiatResult) return;
+
+        setPlagiatLoading(true);
+        try {
+            const response = await plagiatService.analyzeReport(rId);
+            if (response && response.analysis) {
+                setPlagiatResult(response.analysis);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erreur lors de l'analyse plagiat.");
+            setPlagiatOpen(false);
+        } finally {
+            setPlagiatLoading(false);
+        }
+    };
+
     const handleCloseAudit = () => {
         setAuditOpen(false);
+    };
+
+    const handleClosePlagiat = () => {
+        setPlagiatOpen(false);
     };
 
     if (loading) return <LinearProgress />;
@@ -165,7 +212,10 @@ export default function EvaluationPage() {
                             Retour
                         </Button>
                         <Box>
-                            <Button variant="outlined" color="info" onClick={handleAudit}>
+                            <Button variant="outlined" color="secondary" onClick={handlePlagiat} sx={{ mr: 1 }}>
+                                Analyse Plagiat
+                            </Button>
+                            <Button variant="outlined" color="primary" onClick={handleAudit}>
                                 Lancer l'Audit IA
                             </Button>
                         </Box>
@@ -190,6 +240,28 @@ export default function EvaluationPage() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAudit}>Fermer</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Plagiat Modal */}
+            <Dialog open={plagiatOpen} onClose={handleClosePlagiat} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    Détection de Plagiat
+                    <IconButton onClick={handleClosePlagiat}>
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    {plagiatLoading && (
+                        <Box sx={{ width: '100%', textAlign: 'center', py: 5 }}>
+                            <LinearProgress sx={{ mb: 2 }} />
+                            <Typography>Analyse en cours...</Typography>
+                        </Box>
+                    )}
+                    {plagiatResult && <PlagiatResult result={plagiatResult} />}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClosePlagiat}>Fermer</Button>
                 </DialogActions>
             </Dialog>
 

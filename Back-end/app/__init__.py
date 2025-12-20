@@ -42,6 +42,10 @@ def create_app():
     from .api.jury_dashboard_routes import jury_dashboard_bp
     app.register_blueprint(jury_dashboard_bp)
     app.register_blueprint(rapport_bp)
+    
+    from .api.plagiat import plagiat_bp
+    app.register_blueprint(plagiat_bp)
+
     app.register_blueprint(student_bp)
     app.register_blueprint(student_profile_bp)
 
