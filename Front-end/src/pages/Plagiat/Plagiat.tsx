@@ -35,6 +35,7 @@ import {
   ChevronRight,
   AlertTriangle,
 } from "lucide-react"
+import { PlagiatNav } from 'src/components/PlagiatNav'
 
 export function Plagiat() {
   const navigate = useNavigate()
@@ -308,203 +309,206 @@ export function Plagiat() {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        bgcolor: 'background.default',
-        p: { xs: 2, sm: 3, lg: 4 },
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.02)} 0%, ${alpha(
-          theme.palette.background.default,
-          1
-        )} 100%)`,
-      }}
-    >
-      <Box sx={{ maxWidth: 1400, mx: 'auto', width: '100%' }}>
-        {/* Header */}
-        <Fade in={!loading}>
-          <Box sx={{ mb: 5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-              <Avatar
+    <>
+      <PlagiatNav />
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          p: { xs: 2, sm: 3, lg: 4 },
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.02)} 0%, ${alpha(
+            theme.palette.background.default,
+            1
+          )} 100%)`,
+        }}
+      >
+        <Box sx={{ maxWidth: 1400, mx: 'auto', width: '100%' }}>
+          {/* Header */}
+          <Fade in={!loading}>
+            <Box sx={{ mb: 5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
+                <Avatar
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    width: 64,
+                    height: 64,
+                    border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
+                >
+                  <Shield size={32} />
+                </Avatar>
+                <Box>
+                  <Typography variant="h3" fontWeight="bold" gutterBottom>
+                    Détection de Plagiat
+                  </Typography>
+                  <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
+                    Analyse automatisée des rapports pour les jurys
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Paper
+                elevation={0}
                 sx={{
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                  color: theme.palette.primary.main,
-                  width: 64,
-                  height: 64,
-                  border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  p: 3,
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.04)} 0%, ${alpha(
+                    theme.palette.primary.main,
+                    0.02
+                  )} 100%)`,
                 }}
               >
-                <Shield size={32} />
-              </Avatar>
-              <Box>
-                <Typography variant="h3" fontWeight="bold" gutterBottom>
-                  Détection de Plagiat
-                </Typography>
-                <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
-                  Analyse automatisée des rapports pour les jurys
-                </Typography>
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Sparkles size={20} color={theme.palette.primary.main} />
+                  <Typography variant="body1" sx={{ flex: 1 }}>
+                    <strong>Système automatique :</strong> Les rapports sont analysés en temps réel et annotés
+                    automatiquement pour faciliter la décision du jury.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<BarChart size={20} />}
+                    onClick={() => navigate("/plagiat/dashboard")}
+                    sx={{ borderRadius: 2, fontWeight: 600 }}
+                  >
+                    Tableau de bord complet
+                  </Button>
+                </Box>
+              </Paper>
             </Box>
+          </Fade>
 
+          {/* Stats Grid */}
+          <Grid container spacing={3} sx={{ mb: 5 }}>
+            {stats.map((stat, index) => (
+              <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
+                <StatCard stat={stat} index={index} />
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Dernières analyses */}
+          <Fade in={!loading}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 3,
+                border: `1px solid ${theme.palette.divider}`,
+                overflow: 'hidden',
+                mb: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  p: 3,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.8)} 0%, ${alpha(
+                    theme.palette.background.paper,
+                    1
+                  )} 100%)`,
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                  <Box>
+                    <Typography variant="h5" fontWeight="bold" gutterBottom>
+                      Dernières analyses
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {recentAnalyses.length} analyses récentes
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                    <TextField
+                      placeholder="Rechercher un étudiant..."
+                      size="small"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Search size={20} color={theme.palette.text.secondary} />
+                          </InputAdornment>
+                        ),
+                        sx: {
+                          borderRadius: 2,
+                          minWidth: 250,
+                        },
+                      }}
+                      variant="outlined"
+                    />
+                    <Tooltip title="Actualiser les analyses">
+                      <IconButton
+                        onClick={() => window.location.reload()}
+                        sx={{
+                          border: `1px solid ${theme.palette.divider}`,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <RefreshCw size={20} />
+                      </IconButton>
+                    </Tooltip>
+                    <Button
+                      variant="outlined"
+                      onClick={() => navigate("/plagiat/dashboard")}
+                      endIcon={<ArrowRight size={16} />}
+                      sx={{ borderRadius: 2, fontWeight: 600 }}
+                    >
+                      Voir toutes les analyses
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+
+              <CardContent sx={{ p: 3 }}>
+                {recentAnalyses.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 8 }}>
+                    <FileText size={48} color={theme.palette.text.disabled} />
+                    <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+                      Aucune analyse disponible
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      Lancez votre première analyse pour commencer
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Grid container spacing={3}>
+                    {recentAnalyses
+                      .filter((a) =>
+                        `${a.prenom} ${a.name}`
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase())
+                      )
+                      .slice(0, 4)
+                      .map((analysis) => (
+                        <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={analysis.id}>
+                          <AnalysisCard analysis={analysis} />
+                        </Grid>
+                      ))}
+                  </Grid>
+                )}
+              </CardContent>
+            </Paper>
+          </Fade>
+
+          {/* Quick Actions */}
+          <Fade in={!loading}>
             <Paper
               elevation={0}
               sx={{
                 p: 3,
                 borderRadius: 3,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.04)} 0%, ${alpha(
-                  theme.palette.primary.main,
-                  0.02
-                )} 100%)`,
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Sparkles size={20} color={theme.palette.primary.main} />
-                <Typography variant="body1" sx={{ flex: 1 }}>
-                  <strong>Système automatique :</strong> Les rapports sont analysés en temps réel et annotés
-                  automatiquement pour faciliter la décision du jury.
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<BarChart size={20} />}
-                  onClick={() => navigate("/plagiat/dashboard")}
-                  sx={{ borderRadius: 2, fontWeight: 600 }}
-                >
-                  Tableau de bord complet
-                </Button>
-              </Box>
-            </Paper>
-          </Box>
-        </Fade>
-
-        {/* Stats Grid */}
-        <Grid container spacing={3} sx={{ mb: 5 }}>
-          {stats.map((stat, index) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
-              <StatCard stat={stat} index={index} />
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Dernières analyses */}
-        <Fade in={!loading}>
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: 3,
-              border: `1px solid ${theme.palette.divider}`,
-              overflow: 'hidden',
-              mb: 4,
-            }}
-          >
-            <Box
-              sx={{
-                p: 3,
-                borderBottom: `1px solid ${theme.palette.divider}`,
-                background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.8)} 0%, ${alpha(
+                border: `1px solid ${theme.palette.divider}`,
+                background: `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.04)} 0%, ${alpha(
                   theme.palette.background.paper,
                   1
                 )} 100%)`,
               }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-                <Box>
-                  <Typography variant="h5" fontWeight="bold" gutterBottom>
-                    Dernières analyses
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {recentAnalyses.length} analyses récentes
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                  <TextField
-                    placeholder="Rechercher un étudiant..."
-                    size="small"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search size={20} color={theme.palette.text.secondary} />
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        borderRadius: 2,
-                        minWidth: 250,
-                      },
-                    }}
-                    variant="outlined"
-                  />
-                  <Tooltip title="Actualiser les analyses">
-                    <IconButton
-                      onClick={() => window.location.reload()}
-                      sx={{
-                        border: `1px solid ${theme.palette.divider}`,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <RefreshCw size={20} />
-                    </IconButton>
-                  </Tooltip>
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigate("/plagiat/dashboard")}
-                    endIcon={<ArrowRight size={16} />}
-                    sx={{ borderRadius: 2, fontWeight: 600 }}
-                  >
-                    Voir toutes les analyses
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-
-            <CardContent sx={{ p: 3 }}>
-              {recentAnalyses.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                  <FileText size={48} color={theme.palette.text.disabled} />
-                  <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
-                    Aucune analyse disponible
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Lancez votre première analyse pour commencer
-                  </Typography>
-                </Box>
-              ) : (
-                <Grid container spacing={3}>
-                  {recentAnalyses
-                    .filter((a) =>
-                      `${a.prenom} ${a.name}`
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase())
-                    )
-                    .slice(0, 4)
-                    .map((analysis) => (
-                      <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={analysis.id}>
-                        <AnalysisCard analysis={analysis} />
-                      </Grid>
-                    ))}
-                </Grid>
-              )}
-            </CardContent>
-          </Paper>
-        </Fade>
-
-        {/* Quick Actions */}
-        <Fade in={!loading}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              border: `1px solid ${theme.palette.divider}`,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.04)} 0%, ${alpha(
-                theme.palette.background.paper,
-                1
-              )} 100%)`,
-            }}
-          />
-        </Fade>
+            />
+          </Fade>
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 }

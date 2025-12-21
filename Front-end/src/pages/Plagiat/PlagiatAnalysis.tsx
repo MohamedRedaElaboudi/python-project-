@@ -43,6 +43,7 @@ import {
   Link as LinkIcon,
 } from "@mui/icons-material";
 import axios from "axios";
+import { PlagiatNav } from 'src/components/PlagiatNav';
 
 interface Source {
   chunk_index: number;
@@ -660,222 +661,225 @@ export const PlagiatAnalysis: React.FC = () => {
   const mainGridSize = selectedSource ? 7 : 12;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      {/* Header avec breadcrumb et actions */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={() => navigate("/plagiat/dashboard")}
-            sx={{ color: 'text.secondary' }}
-          >
-            Dashboard
-          </Button>
-          <Typography color="text.secondary">/</Typography>
-          <Typography color="primary" fontWeight="600">
-            Analyse #{id}
-          </Typography>
+    <>
+      <PlagiatNav />
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        {/* Header avec breadcrumb et actions */}
+        <Box sx={{ mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+            <Button
+              startIcon={<ArrowBack />}
+              onClick={() => navigate("/plagiat/dashboard")}
+              sx={{ color: 'text.secondary' }}
+            >
+              Dashboard
+            </Button>
+            <Typography color="text.secondary">/</Typography>
+            <Typography color="primary" fontWeight="600">
+              Analyse #{id}
+            </Typography>
+          </Box>
+
+          <Card sx={{ borderRadius: 2, mb: 3, overflow: 'hidden' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container alignItems="center" spacing={3}>
+                <Grid size={{ xs: 12, md: 8 }}>
+                  <Stack spacing={1.5}>
+                    <Typography variant="h4" fontWeight="700">
+                      {rapport}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                      <Chip
+                        avatar={<Avatar sx={{ bgcolor: 'primary.light' }}>S</Avatar>}
+                        label={`Étudiant: ${student}`}
+                        variant="outlined"
+                        sx={{ borderRadius: 2 }}
+                      />
+                      <Chip
+                        icon={<BarChart />}
+                        label={`${total_matches} correspondances`}
+                        variant="outlined"
+                        sx={{ borderRadius: 2 }}
+                      />
+                      <RiskBadge risk={risk} />
+                    </Box>
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Stack direction="row" spacing={1.5} justifyContent={{ md: 'flex-end' }}>
+
+                    <Tooltip title={isReanalyzing ? "Analyse en cours..." : "Réanalyser ce rapport"}>
+                      <span>
+                        <IconButton
+                          onClick={handleReanalyze}
+                          disabled={isReanalyzing}
+                          sx={{
+                            border: `1px solid ${theme.palette.divider}`,
+                            borderRadius: 2,
+                          }}
+                        >
+                          {isReanalyzing ? <CircularProgress size={24} /> : <Refresh />}
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Stack>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
         </Box>
 
-        <Card sx={{ borderRadius: 2, mb: 3, overflow: 'hidden' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Grid container alignItems="center" spacing={3}>
-              <Grid size={{ xs: 12, md: 8 }}>
-                <Stack spacing={1.5}>
-                  <Typography variant="h4" fontWeight="700">
-                    {rapport}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                    <Chip
-                      avatar={<Avatar sx={{ bgcolor: 'primary.light' }}>S</Avatar>}
-                      label={`Étudiant: ${student}`}
-                      variant="outlined"
-                      sx={{ borderRadius: 2 }}
-                    />
-                    <Chip
-                      icon={<BarChart />}
-                      label={`${total_matches} correspondances`}
-                      variant="outlined"
-                      sx={{ borderRadius: 2 }}
-                    />
-                    <RiskBadge risk={risk} />
-                  </Box>
-                </Stack>
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Stack direction="row" spacing={1.5} justifyContent={{ md: 'flex-end' }}>
+        {/* Section principale - Scores, Stats et Détai */}
+        <Grid container spacing={3}>
 
-                  <Tooltip title={isReanalyzing ? "Analyse en cours..." : "Réanalyser ce rapport"}>
-                    <span>
-                      <IconButton
-                        onClick={handleReanalyze}
-                        disabled={isReanalyzing}
-                        sx={{
-                          border: `1px solid ${theme.palette.divider}`,
-                          borderRadius: 2,
-                        }}
-                      >
-                        {isReanalyzing ? <CircularProgress size={24} /> : <Refresh />}
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Stack>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Box>
+          {/* COLONNE GAUCHE (Scores & Stats) - La taille change dynamiquement */}
+          <Grid size={{ xs: 12, lg: mainGridSize }}>
+            <Grid container spacing={3}>
 
-      {/* Section principale - Scores, Stats et Détai */}
-      <Grid container spacing={3}>
-
-        {/* COLONNE GAUCHE (Scores & Stats) - La taille change dynamiquement */}
-        <Grid size={{ xs: 12, lg: mainGridSize }}>
-          <Grid container spacing={3}>
-
-            {/* Blocs de scores */}
-            <Grid size={{ xs: 12, lg: 6 }}>
-              <Card sx={{ borderRadius: 2, height: '100%' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" fontWeight="600" gutterBottom>
-                    Scores principaux
-                  </Typography>
-                  <Grid container spacing={4} sx={{ mt: 1 }}>
-                    <Grid size={{ xs: 6 }}>
-                      <SimilarityGauge value={similarity} label="Similarité" />
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <SimilarityGauge value={originality} label="Originalité" />
-                    </Grid>
-                  </Grid>
-                  <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Score moyen de similarité
+              {/* Blocs de scores */}
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <Card sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="600" gutterBottom>
+                      Scores principaux
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={avg_similarity}
-                        sx={{ flexGrow: 1, height: 8, borderRadius: 4 }}
-                        color={
-                          avg_similarity <= 15 ? 'success' :
-                            avg_similarity <= 40 ? 'warning' : 'error'
-                        }
-                      />
-                      <Typography variant="body1" fontWeight="600">
-                        {avg_similarity.toFixed(1)}%
+                    <Grid container spacing={4} sx={{ mt: 1 }}>
+                      <Grid size={{ xs: 6 }}>
+                        <SimilarityGauge value={similarity} label="Similarité" />
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <SimilarityGauge value={originality} label="Originalité" />
+                      </Grid>
+                    </Grid>
+                    <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Score moyen de similarité
                       </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={avg_similarity}
+                          sx={{ flexGrow: 1, height: 8, borderRadius: 4 }}
+                          color={
+                            avg_similarity <= 15 ? 'success' :
+                              avg_similarity <= 40 ? 'warning' : 'error'
+                          }
+                        />
+                        <Typography variant="body1" fontWeight="600">
+                          {avg_similarity.toFixed(1)}%
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-            {/* Blocs des stats d'analyse */}
-            <Grid size={{ xs: 12, lg: 6 }}>
-              <Card sx={{ borderRadius: 2, height: '100%' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" fontWeight="600" gutterBottom>
-                    Statistiques d'analyse
-                  </Typography>
-                  <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid size={{ xs: 6 }}>
-                      <StatCard
-                        title="Chunks analysés"
-                        value={chunks_analyzed}
-                        icon={<TextSnippet />}
-                        color="primary"
-                      />
+              {/* Blocs des stats d'analyse */}
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <Card sx={{ borderRadius: 2, height: '100%' }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="600" gutterBottom>
+                      Statistiques d'analyse
+                    </Typography>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                      <Grid size={{ xs: 6 }}>
+                        <StatCard
+                          title="Chunks analysés"
+                          value={chunks_analyzed}
+                          icon={<TextSnippet />}
+                          color="primary"
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <StatCard
+                          title="Chunks avec matches"
+                          value={chunks_with_matches}
+                          icon={<CompareArrows />}
+                          color="warning"
+                          subtitle={`${matchRate}% de taux`}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <StatCard
+                          title="Score IA"
+                          value={`${ai_score}%`}
+                          icon={<Warning />}
+                          color="error"
+                          subtitle={ai_score > 50 ? "Risque élevé" : "Risque faible"}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <StatCard
-                        title="Chunks avec matches"
-                        value={chunks_with_matches}
-                        icon={<CompareArrows />}
-                        color="warning"
-                        subtitle={`${matchRate}% de taux`}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 6 }}>
-                      <StatCard
-                        title="Score IA"
-                        value={`${ai_score}%`}
-                        icon={<Warning />}
-                        color="error"
-                        subtitle={ai_score > 50 ? "Risque élevé" : "Risque faible"}
-                      />
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-            {/* Statistiques du document (bas) */}
-            <Grid size={{ xs: 12 }}>
-              <Card sx={{ borderRadius: 2 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" fontWeight="600" gutterBottom>
-                    Statistiques du document
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 6, sm: 3 }}>
-                      <Box sx={{ textAlign: 'center', p: 2 }}>
-                        <Typography variant="h4" fontWeight="700" color="primary">
-                          {total_words.toLocaleString()}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Mots
-                        </Typography>
-                      </Box>
+              {/* Statistiques du document (bas) */}
+              <Grid size={{ xs: 12 }}>
+                <Card sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight="600" gutterBottom>
+                      Statistiques du document
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 6, sm: 3 }}>
+                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                          <Typography variant="h4" fontWeight="700" color="primary">
+                            {total_words.toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Mots
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 3 }}>
+                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                          <Typography variant="h4" fontWeight="700" color="secondary">
+                            {total_characters.toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Caractères
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 3 }}>
+                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                          <Typography variant="h4" fontWeight="700" color="success.main">
+                            {total_paragraphs}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Paragraphes
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 3 }}>
+                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                          <Typography variant="h4" fontWeight="700" color="warning.main">
+                            {unique_words.toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Mots uniques
+                          </Typography>
+                        </Box>
+                      </Grid>
                     </Grid>
-                    <Grid size={{ xs: 6, sm: 3 }}>
-                      <Box sx={{ textAlign: 'center', p: 2 }}>
-                        <Typography variant="h4" fontWeight="700" color="secondary">
-                          {total_characters.toLocaleString()}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Caractères
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid size={{ xs: 6, sm: 3 }}>
-                      <Box sx={{ textAlign: 'center', p: 2 }}>
-                        <Typography variant="h4" fontWeight="700" color="success.main">
-                          {total_paragraphs}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Paragraphes
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid size={{ xs: 6, sm: 3 }}>
-                      <Box sx={{ textAlign: 'center', p: 2 }}>
-                        <Typography variant="h4" fontWeight="700" color="warning.main">
-                          {unique_words.toLocaleString()}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Mots uniques
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
 
+            </Grid>
           </Grid>
+
+          {/* COLONNE DROITE (Détail du Match Sélectionné) */}
+          {selectedSource && (
+            <Grid size={{ xs: 12, lg: 5 }}>
+              <MatchDetailPanel
+                source={selectedSource}
+                handleCopy={handleCopyText}
+              />
+            </Grid>
+          )}
         </Grid>
-
-        {/* COLONNE DROITE (Détail du Match Sélectionné) */}
-        {selectedSource && (
-          <Grid size={{ xs: 12, lg: 5 }}>
-            <MatchDetailPanel
-              source={selectedSource}
-              handleCopy={handleCopyText}
-            />
-          </Grid>
-        )}
-      </Grid>
-    </Container>
+      </Container>
+    </>
   );
 };

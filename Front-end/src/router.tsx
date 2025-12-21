@@ -124,9 +124,11 @@ export default function AppRouter() {
           </Route>
 
           {/* ---------------- Plagiat routes ---------------- */}
-          <Route path="/plagiat" element={<PlagiatLayout><Plagiat /></PlagiatLayout>} />
-          <Route path="/plagiat/dashboard" element={<PlagiatLayout><DashboardPlagiat /></PlagiatLayout>} />
-          <Route path="/plagiat/analysis/:id" element={<PlagiatLayout><PlagiatAnalysis /></PlagiatLayout>} />
+          <Route path="/plagiat" element={<JuryLayout />}>
+            <Route index element={<Plagiat />} />
+            <Route path="dashboard" element={<DashboardPlagiat />} />
+            <Route path="analysis/:id" element={<PlagiatAnalysis />} />
+          </Route>
 
           {/* 404 */}
           <Route path="/404" element={<Page404 />} />
