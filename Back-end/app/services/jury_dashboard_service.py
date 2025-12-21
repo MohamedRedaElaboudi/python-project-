@@ -6,46 +6,49 @@ from app.extensions import db
 
 def get_dashboard_stats(user_id):
     """
-    Get KPIs for the jury dashboard:
-    - Total assigned reports
-    - Pending evaluations
-    - Completed evaluations
-    - Average grade given
+    Get dashboard statistics for a jury member.
     """
-    # Get all reports assigned to this jury member
-    assigned_query = db.session.query(Rapport).join(
-        Soutenance, Soutenance.rapport_id == Rapport.id
-    ).join(
-        Jury, Jury.soutenance_id == Soutenance.id
-    ).filter(
-        Jury.teacher_id == user_id
-    )
-
-    total_assigned = assigned_query.count()
-
-    # Get evaluation stats
-    evaluations_query = db.session.query(Evaluation).filter(Evaluation.jury_id == user_id)
+    print(f"\n{'='*60}")
+    print(f"DEBUG: get_dashboard_stats called for user_id={user_id}")
+    print(f"{'='*60}")
     
-    completed_evaluations = evaluations_query.filter(Evaluation.statut == 'completed').count()
-    # Pending is Total Assigned - Completed (since one evaluation per report per jury)
-    # However, evaluation record might not exist yet if not started. 
-    # So Pending = Total Assigned - Completed is a safe bet, or count explicitly.
-    pending_evaluations = total_assigned - completed_evaluations
+    # Get all evaluations for this jury member
+    evaluations = Evaluation.query.filter_by(jury_id=user_id).all()
+    print(f"DEBUG: Found {len(evaluations)} evaluations for jury #{user_id}")
+    
+    # Get all reports assigned through jury assignments
+    juries = Jury.query.filter_by(teacher_id=user_id).all()
+    print(f"DEBUG: Found {len(juries)} jury assignments for teacher #{user_id}")
+    
+    # Get unique rapport IDs from soutenances
+    rapport_ids = set()
+    for jury in juries:
+        if jury.soutenance and jury.soutenance.rapport_id:
+            rapport_ids.add(jury.soutenance.rapport_id)
+    
+    total_reports = len(rapport_ids)
+    print(f"DEBUG: Total unique reports: {total_reports}")
+    
+    # Count evaluations by status
+    pending = sum(1 for e in evaluations if e.statut == 'pending')
+    completed = sum(1 for e in evaluations if e.statut == 'completed')
+    print(f"DEBUG: Pending: {pending}, Completed: {completed}")
     
     # Calculate average grade
-    avg_grade = evaluations_query.filter(
-        Evaluation.statut == 'completed',
-        Evaluation.final_note.isnot(None)
-    ).with_entities(func.avg(Evaluation.final_note)).scalar()
-    
-    avg_grade = round(float(avg_grade), 2) if avg_grade else 0.0
+    grades = [e.final_note for e in evaluations if e.final_note is not None]
+    avg_grade = sum(grades) / len(grades) if grades else None
+    print(f"DEBUG: Grades: {grades}, Average: {avg_grade}")
 
-    return {
-        "total_assigned": total_assigned,
-        "pending": pending_evaluations,
-        "evaluated": completed_evaluations,
-        "avg_grade": avg_grade
+    stats = {
+        "total_reports": total_reports,
+        "pending_evaluations": pending,
+        "completed_evaluations": completed,
+        "average_grade": avg_grade
     }
+    
+    print(f"DEBUG: Returning stats: {stats}")
+    print(f"{'='*60}\n")
+    return stats
 
 def get_upcoming_soutenances(user_id):
     """
@@ -97,6 +100,10 @@ def get_assigned_reports(user_id):
     """
     Get all reports assigned to the jury member with evaluation status.
     """
+    print(f"\n{'='*60}")
+    print(f"DEBUG: get_assigned_reports called for user_id={user_id}")
+    print(f"{'='*60}")
+    
     # Determine the columns to select
     results = db.session.query(
         Rapport,
@@ -112,15 +119,24 @@ def get_assigned_reports(user_id):
         Jury.teacher_id == user_id
     ).order_by(Soutenance.date_soutenance.desc()).all()
 
+    print(f"DEBUG: Query returned {len(results)} results")
+
     reports_data = []
     seen_reports = set()
-    for rapport, soutenance, evaluation in results:
+    for i, (rapport, soutenance, evaluation) in enumerate(results):
+        print(f"\nDEBUG: Processing result #{i+1}")
+        print(f"  - Rapport ID: {rapport.id}, Title: {rapport.titre}")
+        print(f"  - Soutenance ID: {soutenance.id}, Student ID: {soutenance.student_id}")
+        print(f"  - Evaluation: {evaluation.id if evaluation else 'None'}")
+        
         # Check if report file exists
-        if not rapport.storage_path or not os.path.exists(rapport.storage_path):
-            continue
+        # TEMPORARY: Commented out to show reports even if files don't exist
+        # if not rapport.storage_path or not os.path.exists(rapport.storage_path):
+        #     continue
             
         # Deduplication
         if rapport.id in seen_reports:
+            print(f"  - SKIPPED: Duplicate rapport #{rapport.id}")
             continue
         seen_reports.add(rapport.id)
 
@@ -128,13 +144,19 @@ def get_assigned_reports(user_id):
         filiere = "N/A"
         niveau = "N/A"
         
-        if soutenance.etudiant:
-            student_name = f"{soutenance.etudiant.prenom} {soutenance.etudiant.name}"
-            if soutenance.etudiant.student_profile:
-                filiere = soutenance.etudiant.student_profile.filiere
-                niveau = soutenance.etudiant.student_profile.niveau
+        try:
+            if soutenance.etudiant:
+                student_name = f"{soutenance.etudiant.prenom} {soutenance.etudiant.name}"
+                if soutenance.etudiant.student_profile:
+                    filiere = soutenance.etudiant.student_profile.filiere
+                    niveau = soutenance.etudiant.student_profile.niveau
+                print(f"  - Student: {student_name}, Filiere: {filiere}, Niveau: {niveau}")
+            else:
+                print(f"  - WARNING: No student found for soutenance #{soutenance.id}")
+        except Exception as e:
+            print(f"  - ERROR getting student info: {e}")
 
-        reports_data.append({
+        report_data = {
             "id": rapport.id,
             "title": rapport.titre,
             "student": student_name,
@@ -147,8 +169,12 @@ def get_assigned_reports(user_id):
             "soutenance_id": soutenance.id,
             "storage_path": rapport.storage_path,
             "filename": rapport.filename
-        })
-        
+        }
+        reports_data.append(report_data)
+        print(f"  - ADDED to reports_data")
+    
+    print(f"\nDEBUG: Returning {len(reports_data)} reports")
+    print(f"{'='*60}\n")
     return reports_data
 
 def get_evaluation_details(user_id, rapport_id):

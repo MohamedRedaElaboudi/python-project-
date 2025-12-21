@@ -27,6 +27,8 @@ export default function MyReports() {
                 const response = await axios.get('http://localhost:5000/api/jury/reports', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                console.log('API Response:', response.data);
+                console.log('Reports count:', response.data.length);
                 setReports(response.data);
             } catch (error) {
                 console.error("Error fetching reports:", error);
