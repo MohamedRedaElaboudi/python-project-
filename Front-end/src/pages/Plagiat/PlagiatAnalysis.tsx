@@ -323,11 +323,13 @@ export const PlagiatAnalysis: React.FC = () => {
   // État et logique de chargement... (inchangé)
   const [loading, setLoading] = useState(true);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [rapportId, setRapportId] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [sortBy, setSortBy] = useState<'similarity' | 'chunk'>('similarity');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
 
 
   useEffect(() => {
@@ -338,11 +340,14 @@ export const PlagiatAnalysis: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(
+      const res = await axios.get<ApiResponse>(
         `http://localhost:5000/api/plagiat/analysis/${analysisId}`
       );
 
       const raw = res.data;
+
+      // Save rapport_id for re-analysis
+      setRapportId(raw.rapport_id);
 
       // MAPPING: Backend -> Frontend
       const mappedData: AnalysisData = {
@@ -420,18 +425,29 @@ export const PlagiatAnalysis: React.FC = () => {
   };
 
   const handleReanalyze = async () => {
-    if (!analysisData || !id) return;
+    if (!rapportId || !id) {
+      setError("Impossible de relancer l'analyse");
+      return;
+    }
 
     try {
-      setLoading(true);
+      setIsReanalyzing(true);
+      setError("");
+
+      // Use rapport_id to re-analyze
       await axios.post(
-        `http://localhost:5000/api/plagiat/analyze/${id}`,
-        {}
+        `http://localhost:5000/api/plagiat/analyze/${rapportId}`
       );
-      setTimeout(() => fetchAnalysis(id), 1500);
-    } catch (err) {
-      setError("Erreur lors de la réanalyse");
-      setLoading(false);
+
+      // Wait a bit for the analysis to complete, then refresh
+      setTimeout(() => {
+        fetchAnalysis(id);
+        setIsReanalyzing(false);
+      }, 2000);
+    } catch (err: any) {
+      console.error("Erreur lors de la réanalyse:", err);
+      setError(err.response?.data?.error || "Erreur lors de la réanalyse");
+      setIsReanalyzing(false);
     }
   };
 
@@ -689,16 +705,19 @@ export const PlagiatAnalysis: React.FC = () => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Stack direction="row" spacing={1.5} justifyContent={{ md: 'flex-end' }}>
 
-                  <Tooltip title="Réanalyser">
-                    <IconButton
-                      onClick={handleReanalyze}
-                      sx={{
-                        border: `1px solid ${theme.palette.divider}`,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <Refresh />
-                    </IconButton>
+                  <Tooltip title={isReanalyzing ? "Analyse en cours..." : "Réanalyser ce rapport"}>
+                    <span>
+                      <IconButton
+                        onClick={handleReanalyze}
+                        disabled={isReanalyzing}
+                        sx={{
+                          border: `1px solid ${theme.palette.divider}`,
+                          borderRadius: 2,
+                        }}
+                      >
+                        {isReanalyzing ? <CircularProgress size={24} /> : <Refresh />}
+                      </IconButton>
+                    </span>
                   </Tooltip>
                 </Stack>
               </Grid>
