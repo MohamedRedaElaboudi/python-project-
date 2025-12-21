@@ -2,25 +2,25 @@
    IMPORTS (ESLint OK)
 ============================ */
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import {
+  Box,
+  List,
+  Menu,
+  Badge,
   AppBar,
   Avatar,
-  Badge,
-  Box,
-  Divider,
   Drawer,
+  Divider,
+  Toolbar,
+  MenuItem,
   IconButton,
-  List,
-  ListItemButton,
+  Typography,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
+  ListItemButton,
 } from "@mui/material";
 
 import DarkModeIcon from "@mui/icons-material/DarkMode";

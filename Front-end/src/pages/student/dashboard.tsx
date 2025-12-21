@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
-  CardContent,
-  Typography,
   Chip,
+  Grid,
+  Stack,
   Button,
   Divider,
-  Stack,
+  Typography,
+  CardContent,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
 
 const API_BASE = "http://localhost:5000/api/v1";
 
@@ -58,19 +58,19 @@ export default function StudentDashboard() {
     status === "uploaded"
       ? "En cours"
       : status === "validated"
-      ? "Validé"
-      : status === "rejected"
-      ? "Refusé"
-      : "—";
+        ? "Validé"
+        : status === "rejected"
+          ? "Refusé"
+          : "—";
 
   const getRapportStatusColor = (status?: string) =>
     status === "uploaded"
       ? "warning"
       : status === "validated"
-      ? "success"
-      : status === "rejected"
-      ? "error"
-      : "default";
+        ? "success"
+        : status === "rejected"
+          ? "error"
+          : "default";
 
   if (loading) return <Typography>Chargement...</Typography>;
   if (!data) return <Typography color="error">Erreur chargement</Typography>;
@@ -97,7 +97,7 @@ export default function StudentDashboard() {
       {/* ================= CONTENT ================= */}
       <Grid container spacing={3}>
         {/* ===== RAPPORT ===== */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">📄 Mon Rapport</Typography>
@@ -138,7 +138,7 @@ export default function StudentDashboard() {
         </Grid>
 
         {/* ===== SOUTENANCE ===== */}
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">📅 Soutenance</Typography>
@@ -184,8 +184,8 @@ export default function StudentDashboard() {
                             j.role === "president"
                               ? "Président"
                               : j.role === "supervisor"
-                              ? "Encadrant"
-                              : "Membre"
+                                ? "Encadrant"
+                                : "Membre"
                           }
                         />
                       </Box>

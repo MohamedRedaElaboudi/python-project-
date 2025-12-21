@@ -1,5 +1,15 @@
 import axios from 'axios';
-import { PlagiatAnalysisResult } from 'src/components/plagiat';
+// import type { PlagiatAnalysisResult } from 'src/components/plagiat';
+interface PlagiatAnalysisResult {
+    totalWords?: number;
+    totalCharacters?: number;
+    totalParagraphs?: number;
+    totalSentences?: number;
+    uniqueWords?: number;
+    similarity_score?: number;
+    matches?: any[];
+    matchesDistribution?: Record<string, number>;
+}
 
 const API_URL = 'http://localhost:5000/api/plagiat';
 

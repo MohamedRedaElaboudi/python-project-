@@ -5,13 +5,13 @@ import { registerStudent } from "../../api/auth";
 import {
   Box,
   Card,
-  TextField,
-  Typography,
-  Button,
-  InputAdornment,
-  Divider,
   Chip,
   Alert,
+  Button,
+  Divider,
+  TextField,
+  Typography,
+  InputAdornment,
 } from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
@@ -67,7 +67,7 @@ export default function StudentRegister() {
       await registerStudent(form);
       nav("/login");
     } catch {
-      alert("Erreur lors de l'inscription étudiant");
+      alert("Erreur lors de l&apos;inscription étudiant");
     }
   };
 

@@ -14,7 +14,11 @@ import os
 @jwt_required()
 def audit_report(soutenance_id):
     try:
-        current_user_id = get_jwt_identity()
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user_id = int(identity.get('id'))
+        else:
+            current_user_id = int(identity)
         
         soutenance = Soutenance.query.get(soutenance_id)
         if not soutenance:
@@ -44,7 +48,8 @@ def audit_report(soutenance_id):
 @jwt_required()
 def get_dashboard_data():
     try:
-        current_user_id = get_jwt_identity()
+        identity = get_jwt_identity()
+        current_user_id = int(identity.get('id')) if isinstance(identity, dict) else int(identity)
         kpis = jury_dashboard_service.get_dashboard_stats(current_user_id)
         upcoming = jury_dashboard_service.get_upcoming_soutenances(current_user_id)
         
@@ -65,7 +70,8 @@ def get_dashboard_data():
 @jwt_required()
 def get_reports():
     try:
-        current_user_id = get_jwt_identity()
+        identity = get_jwt_identity()
+        current_user_id = int(identity.get('id')) if isinstance(identity, dict) else int(identity)
         reports = jury_dashboard_service.get_assigned_reports(current_user_id)
         return jsonify(reports), 200
     except Exception as e:
@@ -76,7 +82,8 @@ def get_reports():
 @jwt_required()
 def get_evaluation(rapport_id):
     try:
-        current_user_id = get_jwt_identity()
+        identity = get_jwt_identity()
+        current_user_id = int(identity.get('id')) if isinstance(identity, dict) else int(identity)
         data, error = jury_dashboard_service.get_evaluation_details(current_user_id, rapport_id)
         
         if error:
@@ -91,7 +98,8 @@ def get_evaluation(rapport_id):
 @jwt_required()
 def save_evaluation():
     try:
-        current_user_id = get_jwt_identity()
+        identity = get_jwt_identity()
+        current_user_id = int(identity.get('id')) if isinstance(identity, dict) else int(identity)
         data = request.get_json()
         
         evaluation, error = jury_dashboard_service.save_evaluation(current_user_id, data)
@@ -126,10 +134,8 @@ def seed_criteria():
 @jury_dashboard_bp.route('/rapports/<int:rapport_id>/view', methods=['GET'])
 @jwt_required()
 def view_rapport(rapport_id):
-    current_user_id = get_jwt_identity()
-    # Handle int/dict identity
-    if isinstance(current_user_id, dict):
-        current_user_id = current_user_id.get('id')
+    identity = get_jwt_identity()
+    current_user_id = int(identity.get('id')) if isinstance(identity, dict) else int(identity)
     
     # 1. Verify user is a jury (or teacher)
     # Ideally should check if assigned, but for now just check role/existence

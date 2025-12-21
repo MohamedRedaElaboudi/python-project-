@@ -13,7 +13,6 @@ import { AnalyticsRapportsStats } from '../analytics-rapports-stats';
 import { AnalyticsSallesStats } from '../analytics-salles-stats';
 import { AnalyticsUsersByRole } from '../analytics-users-by-role';
 import { AnalyticsUpcomingSoutenances } from '../analytics-upcoming-soutenances';
-import { AnalyticsByFiliere } from '../analytics-by-filiere';
 
 // Types basés sur votre API Flask
 interface DashboardStats {
@@ -33,6 +32,7 @@ interface DashboardStats {
   };
   salles: {
     total: number;
+    occupied: number;
   };
   upcomingSoutenances: Array<{
     id: number;
@@ -43,7 +43,7 @@ interface DashboardStats {
     student_filiere: string;
   }>;
   usersByRole: Array<{
-    role: 'admin' | 'teacher' | 'student' | 'jury' ;
+    role: 'admin' | 'teacher' | 'student' | 'jury';
     count: number;
     percentage: number;
   }>;
@@ -58,7 +58,7 @@ const defaultStats: DashboardStats = {
   soutenances: { total: 0 },
   users: { total: 0, admin: 0, teacher: 0, student: 0, jury: 0 },
   rapports: { total: 0 },
-  salles: { total: 0},
+  salles: { total: 0, occupied: 0 },
   upcomingSoutenances: [],
   usersByRole: [],
   filiereStats: []
@@ -108,7 +108,7 @@ export function OverviewAnalyticsView(): React.JSX.Element {
           jury: 0,
         };
 
-        let usersByRole: Array<{role: string, count: number, percentage: number}> = [];
+        let usersByRole: Array<{ role: string, count: number, percentage: number }> = [];
 
         if (apiData.users) {
           console.log('📊 Structure users:', apiData.users);
@@ -127,7 +127,7 @@ export function OverviewAnalyticsView(): React.JSX.Element {
 
             usersData.total = apiData.users.total ||
               (usersData.admin + usersData.teacher + usersData.student +
-               usersData.jury );
+                usersData.jury);
 
             usersByRole = apiData.users.byRole;
           }
@@ -191,7 +191,7 @@ export function OverviewAnalyticsView(): React.JSX.Element {
           },
           salles: apiData.salles || {
             total: 0,
-
+            occupied: 0,
           },
           upcomingSoutenances: apiData.upcomingSoutenances || [],
           usersByRole: usersByRole.length > 0 ? usersByRole : apiData.usersByRole || []
@@ -208,10 +208,10 @@ export function OverviewAnalyticsView(): React.JSX.Element {
         const fallbackUpcoming = apiData?.upcomingSoutenances || [];
 
         setStats({
-          soutenances: {total: 16 },
-          users: { total: 40, admin: 0, teacher: 0, student: 40, jury: 0},
-          rapports: {  total: 1 },
-          salles: { total: 9 },
+          soutenances: { total: 16 },
+          users: { total: 40, admin: 0, teacher: 0, student: 40, jury: 0 },
+          rapports: { total: 1 },
+          salles: { total: 9, occupied: 0 },
           upcomingSoutenances: fallbackUpcoming,
           usersByRole: [
             { role: 'student', count: 40, percentage: 100 }

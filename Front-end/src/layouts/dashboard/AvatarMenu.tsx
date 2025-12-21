@@ -1,6 +1,6 @@
 // AvatarMenu.tsx
 import React, { useState } from 'react';
-import { Menu, MenuItem, Box } from '@mui/material';
+import { Box, Menu, MenuItem } from '@mui/material';
 
 interface AvatarMenuProps {
   user: {

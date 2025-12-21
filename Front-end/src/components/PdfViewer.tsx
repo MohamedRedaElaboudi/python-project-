@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -15,14 +15,9 @@ export default function PdfViewer({ url, rapportId }: PdfViewerProps) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // If specific URL provided, use it
     if (url) {
       setPdfUrl(url);
-      return;
-    }
-
-    // If rapportId provided, fetch it
-    if (rapportId) {
+    } else if (rapportId) {
       const fetchPdf = async () => {
         setLoading(true);
         setError('');
@@ -53,7 +48,7 @@ export default function PdfViewer({ url, rapportId }: PdfViewerProps) {
         URL.revokeObjectURL(pdfUrl);
       }
     };
-  }, [url, rapportId]);
+  }, [url, rapportId, pdfUrl]);
 
   if (loading) {
     return (

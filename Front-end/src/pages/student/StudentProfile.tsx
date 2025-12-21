@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
-  CardContent,
-  Typography,
-  Button,
   Chip,
   Grid,
+  Button,
+  Typography,
+  CardContent,
   CircularProgress,
 } from "@mui/material";
 import { getStudentProfile } from "../../api/studentProfile";
@@ -44,14 +44,14 @@ export default function StudentProfile() {
       <Card>
         <CardContent>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography><b>Nom :</b> {profile.name}</Typography>
               <Typography><b>Prénom :</b> {profile.prenom}</Typography>
               <Typography><b>Email :</b> {profile.email}</Typography>
               <Chip label="Email académique" color="success" size="small" />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography><b>CIN :</b> {profile.cin}</Typography>
               <Typography><b>CNE :</b> {profile.cne}</Typography>
               <Typography><b>Filière :</b> {profile.filiere}</Typography>

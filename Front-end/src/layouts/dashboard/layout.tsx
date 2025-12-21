@@ -1,29 +1,19 @@
 import type { Breakpoint } from '@mui/material/styles';
 
-import { merge } from 'es-toolkit';
 import { useBoolean } from 'minimal-shared/hooks';
 
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import { Outlet } from 'react-router-dom';
-import { _langs, _notifications } from 'src/_mock';
 import { HeaderUserAvatar } from './header-user-avatar';
 
 import { NavMobile, NavDesktop } from './nav';
 import { layoutClasses } from '../core/classes';
-import { _account } from '../nav-config-account';
 import { dashboardLayoutVars } from './css-vars';
 import { navData } from '../nav-config-dashboard';
 import { MainSection } from '../core/main-section';
-import { Searchbar } from '../components/searchbar';
-import { _workspaces } from '../nav-config-workspace';
 import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
-import { AccountPopover } from '../components/account-popover';
-import { LanguagePopover } from '../components/language-popover';
-import { NotificationsPopover } from '../components/notifications-popover';
 
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';

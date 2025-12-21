@@ -1,5 +1,5 @@
 import type { CardProps } from '@mui/material/Card';
-import type { ChartOptions } from 'src/components/chart';
+import type { ChartOptions } from 'src/components/chart/types';
 
 import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
@@ -8,7 +8,9 @@ import CardHeader from '@mui/material/CardHeader';
 
 import { fNumber } from 'src/utils/format-number';
 
-import { Chart, useChart, ChartLegends } from 'src/components/chart';
+import { Chart } from 'src/components/chart/chart';
+import { useChart } from 'src/components/chart/use-chart';
+import { ChartLegends } from 'src/components/chart/components';
 
 // ----------------------------------------------------------------------
 

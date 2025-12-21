@@ -1,0 +1,730 @@
+\documentclass[12pt, a4paper]{report}
+
+% ==============================================================================
+% --- PACKAGES ET CONFIGURATION DE BASE ---
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{times} % Police Times New Roman
+\usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage{setspace} % Pour linterligne
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec} % Pour la personnalisation des titres
+\usepackage{longtable}
+\usepackage{caption} % Pour les légendes des figures et tableaux
+
+% ==============================================================================
+% --- MISE EN PAGE ET STYLE GÉNÉRAL ---
+% ==============================================================================
+% --- Interligne et Justification ---
+\onehalfspacing % Interligne 1.5
+\frenchsetup{StandardLayout} % Pour une justification complète
+
+% --- En-têtes et Pieds de page ---
+\pagestyle{fancy}
+\fancyhf{} % Efface tous les champs d'en-tête et de pied de page
+\fancyfoot[R]{\thepage} % Numérotation en bas à droite
+\renewcommand{\headrulewidth}{0pt} % Pas de ligne en haut
+\renewcommand{\footrulewidth}{0pt}
+
+% ==============================================================================
+% --- FORMATAGE DES TITRES (selon le guide) ---
+% ==============================================================================
+% --- Chapitres et sections non numérotées ---
+\titleformat{\chapter}[display]
+  {\normalfont\fontsize{16}{18}\bfseries\raggedleft} % Taille 16, Gras, Alignement à droite
+  {\MakeUppercase{\chaptertitlename\ \thechapter}}
+  {0pt}
+  {\fontsize{16}{18}\bfseries}
+  [\clearpage\vspace{54pt}]
+\titlespacing*{\chapter}{0pt}{0pt}{54pt}
+
+% --- Sections (I, II, III...) ---
+\renewcommand{\thesection}{\Roman{section}}
+\titleformat{\section}
+  {\normalfont\fontsize{14}{16}\bfseries} % Taille 14, Gras
+  {\thesection.}
+  {1em}
+  {}
+\titlespacing*{\section}{0pt}{12pt}{12pt}
+
+% --- Sous-sections (I.1, I.2...) ---
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\titleformat{\subsection}
+  {\normalfont\fontsize{12}{14}\bfseries} % Taille 12, Gras
+  {\thesubsection.}
+  {1em}
+  {}
+\titlespacing*{\subsection}{0pt}{6pt}{6pt}
+
+% --- Sous-sous-sections (I.1.1, I.1.2...) ---
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{12}{14}\bfseries} % Taille 12, Gras
+  {\thesubsubsection.}
+  {1em}
+  {}
+\titlespacing*{\subsubsection}{0pt}{6pt}{6pt}
+
+% ==============================================================================
+% --- FORMATAGE DES LÉGENDES (Figures et Tableaux) ---
+% ==============================================================================
+\captionsetup[figure]{
+    font={small,it}, % small (11pt), italique
+    justification=centering,
+    labelsep=colon,
+    name=Figure,
+    below % Titre en bas pour les figures
+}
+\captionsetup[table]{
+    font=small, % small (11pt)
+    justification=centering,
+    labelsep=colon,
+    name=Tableau,
+    above % Titre en haut pour les tableaux
+}
+
+% ==============================================================================
+% --- DÉBUT DU DOCUMENT ---
+% ==============================================================================
+\begin{document}
+
+% --- PAGE DE GARDE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\fontsize{20}{24}\bfseries Conception et Réalisation d'une Application Web pour la Gestion des Soutenances}
+    \vspace{2cm}
+    \includegraphics[width=6cm]{Front-end/public/assets/logo.png}
+    \vspace{2cm}
+    
+    {\large Rapport de Projet de Fin d'Études}
+    
+    \vfill % Pousse le contenu suivant vers le bas
+    
+    {\large Présenté par :} \\
+    \vspace{0.5cm}
+    {\large\bfseries Votre Nom}
+    
+    \vspace{1cm}
+    
+    {\large Encadré par :} \\
+    \vspace{0.5cm}
+    {\large\bfseries Nom de l'Encadrant}
+    
+    \vspace{2cm}
+    
+    {\large Année Universitaire : 2024-2025}
+\end{titlepage}
+
+% --- PAGES PRÉLIMINAIRES ---
+\pagenumbering{roman} % Numérotation romaine pour les premières pages
+
+% --- Dédicaces ---
+\chapter*{Dédicaces}
+\addcontentsline{toc}{chapter}{Dédicaces}
+\vspace*{5cm}
+\begin{center}
+    \textit{À remplir...}
+\end{center}
+\clearpage
+
+% --- Remerciements ---
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+\vspace*{1cm}
+Je tiens à exprimer ma profonde gratitude à toutes les personnes qui ont contribué, de près ou de loin, à la réalisation de ce projet de fin d'études.
+
+Mes remerciements s'adressent tout particulièrement à mon encadrant, \textbf{Nom de l'Encadrant}, pour sa disponibilité, ses conseils avisés et son soutien constant tout au long de ce travail. Sa confiance et son expertise ont été des atouts précieux pour surmonter les difficultés rencontrées.
+
+Je remercie également l'ensemble du corps professoral pour la qualité de la formation reçue, qui a jeté les bases théoriques et pratiques nécessaires à la conduite de ce projet.
+
+Enfin, je n'oublie pas ma famille et mes amis, pour leur soutien moral, leur patience et leurs encouragements indéfectibles durant cette période intense.
+\clearpage
+
+% --- Résumé ---
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Le présent projet porte sur la conception et la réalisation d'une application web complète destinée à optimiser la gestion des soutenances de fin d'études. Face aux problématiques d'inefficacité, de manque de fiabilité et d'opacité des processus manuels traditionnels, une solution logicielle intégrée a été développée. L'application, basée sur une architecture à trois tiers, se compose d'un backend en Python (Flask) et d'un frontend en TypeScript (React). 
+
+Les fonctionnalités clés incluent un module de planification automatique sous contraintes, utilisant Google OR-Tools pour générer des plannings optimisés, ainsi qu'un système d'analyse de plagiat intégré qui assiste les jurys dans leur mission d'évaluation. La plateforme offre des portails dédiés et sécurisés pour les administrateurs, les professeurs et les étudiants, centralisant ainsi l'information et fluidifiant la communication. Ce rapport détaille la démarche d'ingénierie adoptée, de l'analyse des besoins à l'implémentation, et discute les résultats obtenus ainsi que les perspectives d'évolution.
+
+\vspace{1cm}
+\textbf{Mots-clés :} Gestion de soutenances, Planification automatique, Optimisation sous contraintes, Python, Flask, React, TypeScript, Google OR-Tools, Détection de plagiat.
+\clearpage
+
+% --- Table des matières ---
+\tableofcontents
+\clearpage
+
+% --- Liste des figures et tableaux ---
+\listoffigures
+\addcontentsline{toc}{section}{Liste des figures}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{section}{Liste des tableaux}
+\clearpage
+
+% --- Liste des abréviations ---
+\chapter*{Liste des symboles et des abréviations}
+\addcontentsline{toc}{chapter}{Liste des symboles et des abréviations}
+\begin{longtable}{ll}
+\textbf{API} & Application Programming Interface \\
+\textbf{CRUD} & Create, Read, Update, Delete \\
+\textbf{DAO} & Data Access Object \\
+\textbf{DAL} & Data Access Layer \\
+\textbf{HTTP} & Hypertext Transfer Protocol \\
+\textbf{JWT} & JSON Web Token \\
+\textbf{MCD} & Modèle Conceptuel de Données \\
+\textbf{MUI} & Material-UI \\
+\textbf{NLP} & Natural Language Processing (Traitement du Langage Naturel) \\
+\textbf{ORM} & Object-Relational Mapper \\
+\textbf{OWASP} & Open Web Application Security Project \\
+\textbf{POC} & Problème d'Optimisation sous Contraintes \\
+\textbf{RBAC} & Role-Based Access Control \\
+\textbf{REST} & Representational State Transfer \\
+\textbf{SGBDR} & Système de Gestion de Base de Données Relationnelle \\
+\textbf{SPA} & Single Page Application \\
+\textbf{SQL} & Structured Query Language \\
+\textbf{SSO} & Single Sign-On \\
+\textbf{UI} & User Interface (Interface Utilisateur) \\
+\textbf{WCAG} & Web Content Accessibility Guidelines \\
+\textbf{WSGI} & Web Server Gateway Interface \\
+\end{longtable}
+\clearpage
+
+% --- CORPS DU RAPPORT ---
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[R]{\thepage}\renewcommand{\headrulewidth}{0pt}} % Style pour la première page des chapitres
+\pagestyle{fancy}
+\pagenumbering{arabic} % La pagination commence ici
+
+\chapter{INTRODUCTION GÉNÉRALE}
+\addcontentsline{toc}{chapter}{Introduction Générale}
+
+La transformation numérique constitue un levier de modernisation majeur pour l'ensemble des secteurs d'activité, y compris l'enseignement supérieur. Au sein des institutions académiques, de nombreux processus administratifs et pédagogiques, bien qu'essentiels, reposent encore sur des méthodes manuelles, chronophages et susceptibles d'erreurs. La gestion des soutenances de fin d'études est une illustration particulièrement pertinente de cette problématique.
+
+Étape cruciale du cursus universitaire, l'organisation des soutenances représente un défi logistique de grande ampleur. Elle requiert une coordination rigoureuse entre les étudiants, le corps professoral et les services administratifs. Le recours à des outils bureautiques non intégrés engendre des inefficacités, un manque de visibilité et un risque opérationnel non négligeable.
+
+Face à ce constat, le présent projet vise à apporter une solution structurante par la conception et le développement d'une plateforme web centralisée. L'objectif principal est d'automatiser et de simplifier l'intégralité du cycle de vie de la gestion des soutenances, du dépôt des mémoires à la génération intelligente des plannings, en passant par un système d'aide à la détection de plagiat. 
+
+Ce rapport a pour objet de présenter de manière détaillée et structurée la démarche d'ingénierie suivie. Il s'adresse à un public large, en s'efforçant de clarifier les aspects techniques et de mettre en exergue la valeur ajoutée fonctionnelle de la solution. La structure du document retrace le cycle de vie du projet : nous débuterons par une analyse du contexte et de la problématique, nous exposerons ensuite la phase de conception architecturale et de modélisation, puis nous détaillerons la réalisation technique avant de conclure sur les résultats et les perspectives.
+
+\chapter{CONTEXTE ET PROBLÉMATIQUE}
+\addcontentsline{toc}{chapter}{Contexte et Problématique}
+\section{Introduction}
+Une démarche d'ingénierie logicielle efficace repose sur une compréhension approfondie du domaine fonctionnel et de l'environnement dans lequel la solution logicielle s'intégrera. Ce premier chapitre est consacré à cette analyse préliminaire. Il a pour but de décrire le cadre spécifique des soutenances académiques, d'identifier avec précision les dysfonctionnements et les inefficacités du processus actuel, et de formuler des objectifs clairs et mesurables qui orienteront le développement de l'application. Une définition rigoureuse de la problématique est en effet un prérequis indispensable à la conception d'une solution pertinente et adéquate.
+
+\section{Contexte du projet : La complexité opérationnelle des soutenances}
+L'organisation des soutenances de fin de cycle (licence, master, diplôme d'ingénieur) est une responsabilité administrative majeure pour tout établissement d'enseignement supérieur. Ce processus récurrent, qui culmine en une période de forte intensité, met une pression considérable sur les services administratifs et le corps professoral en raison de sa complexité logistique.
+
+Pour illustrer cette complexité, considérons un établissement de taille moyenne gérant une promotion de 250 étudiants, avec un corps professoral de 75 enseignants et un parc d'une quinzaine de salles de soutenance. Pour chaque session, les enjeux sont les suivants :
+\begin{itemize}
+    \item \textbf{Gestion documentaire :} 250 mémoires doivent être collectés, identifiés, stockés de manière sécurisée et mis à disposition des jurys.
+    \item \textbf{Coordination humaine :} Environ 250 jurys de 3 membres chacun doivent être constitués, ce qui représente 750 participations professorales à planifier en tenant compte des expertises et des disponibilités de chacun.
+    \item \textbf{Planification temporelle :} Le volume horaire total, incluant la soutenance et la délibération, doit être réparti sur les créneaux disponibles de la période allouée.
+    \item \textbf{Allocation de ressources matérielles :} Des salles adéquates, avec les équipements requis, doivent être attribuées à chaque créneau de soutenance.
+\end{itemize}
+
+Actuellement, ce processus repose en grande partie sur des méthodes manuelles assistées par des outils bureautiques génériques, ce qui présente plusieurs lacunes :
+\begin{itemize}
+    \item \textbf{Collecte des mémoires :} La transmission des documents par messagerie électronique ou via des plateformes de partage de fichiers non dédiées engendre des problèmes de versionnage, de non-conformité des formats et un manque de traçabilité centralisée.
+    \item \textbf{Gestion des disponibilités :} La collecte des contraintes de disponibilité des enseignants, souvent via des sondages ou des fichiers partagés, nécessite une consolidation manuelle fastidieuse et sujette aux erreurs de saisie.
+    \item \textbf{Composition des jurys :} La constitution des jurys est un processus décisionnel complexe, basé sur l'expertise, la charge de travail et d'autres critères qualitatifs difficiles à formaliser et à optimiser manuellement.
+    \item \textbf{Élaboration du planning :} La planification s'apparente à un problème d'optimisation combinatoire de grande dimension. L'utilisation de tableurs pour cette tâche est non seulement chronophage mais augmente aussi significativement le risque d'erreurs (chevauchements, doubles affectations).
+    \item \textbf{Communication :} La diffusion des plannings par e-mail rend toute mise à jour difficile et génère de la confusion parmi les différentes versions de documents en circulation.
+\end{itemize}
+Ce mode de fonctionnement atteint ses limites, créant des frictions opérationnelles et une perception dégradée du processus pour l'ensemble des parties prenantes.
+
+\section{Problématique : Les impacts de l'inefficacité du système manuel}
+La gestion manuelle des soutenances engendre une série de problèmes concrets dont les coûts, directs et indirects, affectent l'institution dans son ensemble.
+
+\subsection{Inefficacité opérationnelle et surcoût administratif}
+Le temps consacré par le personnel administratif à des tâches de coordination à faible valeur ajoutée (relances, consolidation de données, résolution de conflits d'horaires) est considérable. Ces ressources humaines pourraient être allouées à des missions plus stratégiques. De même, le temps passé par les professeurs à gérer des sollicitations administratives multiples représente une perte pour leurs activités d'enseignement et de recherche. L'inefficacité du processus génère donc un surcoût opérationnel significatif.
+
+\subsection{Erreurs humaines et manque de fiabilité}
+Le traitement manuel d'un grand volume de données est intrinsèquement sujet aux erreurs humaines : fautes de saisie, oublis, erreurs de copier-coller. Ces erreurs, même mineures, peuvent avoir des conséquences importantes :
+\begin{itemize}
+    \item Conflits d'affectation (un professeur ou une salle assigné à deux soutenances simultanément).
+    \item Non-conformité du jury par rapport aux règles pédagogiques.
+    \item Erreurs de communication entraînant des retards ou des absences.
+\end{itemize}
+De tels incidents perturbent le bon déroulement des soutenances, nuisent à la réputation de l'établissement et génèrent une expérience négative pour les étudiants et les professeurs.
+
+\subsection{Manque de transparence et de centralisation de l'information}
+L'information relative aux soutenances est souvent fragmentée et difficile d'accès.
+\begin{itemize}
+    \item \textbf{Pour les étudiants :} L'incertitude quant à la réception de leur mémoire, la date de leur soutenance ou la composition de leur jury est une source de stress importante.
+    \item \textbf{Pour les professeurs :} L'absence d'un planning de référence, unique et à jour, complique leur organisation.
+    \item \textbf{Pour l'administration :} La vision globale du processus est souvent détenue par une seule personne, ce qui rend le partage d'information complexe et crée un point de défaillance unique.
+\end{itemize}
+Ce manque de transparence et de centralisation conduit à une surcharge informationnelle, des malentendus et une perception générale d'opacité du processus.
+
+\subsection{Sous-optimalité de la planification}
+La planification des soutenances est un problème d'optimisation sous contraintes (POC). Le traitement manuel ou assisté par tableur ne permet pas d'explorer l'ensemble des solutions possibles pour identifier un optimum. Le planning résultant est souvent un compromis qui peut présenter des lacunes : "trous" dans les emplois du temps, répartition inéquitable de la charge de travail entre les jurys, ou une période de soutenances inutilement étendue. Cela se traduit par une sous-utilisation des ressources et une insatisfaction des acteurs.
+
+\subsection{Défis liés au respect de l'intégrité académique}
+La vérification de l'originalité des travaux est une composante essentielle de l'évaluation académique. Cependant, l'analyse manuelle de centaines de mémoires est une tâche irréalisable dans un temps limité. Les outils de détection de plagiat existants, lorsqu'ils ne sont pas intégrés au processus, nécessitent des manipulations fastidieuses. Ce manque d'intégration constitue un risque pour l'intégrité académique de l'établissement.
+
+\section{Objectifs du projet : Formalisation d'une solution intégrée}
+Afin de répondre de manière systématique à la problématique identifiée, le projet s'est articulé autour de plusieurs objectifs stratégiques.
+
+\begin{enumerate}[label=\textbf{Objectif \arabic*} :]
+    \item \textbf{Centraliser et Sécuriser l'Information.} Établir une base de données unique et cohérente comme source de référence pour toutes les données relatives aux soutenances (profils, documents, ressources, plannings). Garantir la confidentialité, l'intégrité et la disponibilité de ces données.
+    \item \textbf{Automatiser la Planification.} Développer un module logiciel capable de générer automatiquement un planning de soutenances optimisé et sans conflit, en intégrant l'ensemble des contraintes humaines, matérielles et pédagogiques.
+    \item \textbf{Fournir des Interfaces Utilisateur Dédiées.} Concevoir et développer des portails web ergonomiques et personnalisés pour chaque rôle (administrateur, professeur, étudiant), afin de simplifier leurs interactions avec le système et de leur fournir un accès pertinent à l'information.
+    \item \textbf{Intégrer un Système d'Aide à la Détection de Plagiat.} Incorporer un module d'analyse automatique de l'originalité des mémoires soumis, afin de fournir aux jurys un outil d'aide à l'évaluation efficace et systématique.
+    \item \textbf{Garantir la Performance et l'Évolutivité de la Solution.} Construire une architecture logicielle robuste, performante et maintenable, capable de supporter la charge d'utilisation et de s'adapter aux évolutions futures des besoins de l'institution.
+\end{enumerate}
+
+\section{Conclusion}
+L'analyse du contexte a mis en évidence les limites structurelles du processus manuel de gestion des soutenances. Les problèmes identifiés, allant de l'inefficacité opérationnelle au manque de fiabilité, justifient pleinement la nécessité d'une refonte complète du processus via une solution numérique intégrée. Les objectifs définis dans ce chapitre fournissent un cadre clair et ambitieux pour la conception et la réalisation de cette solution, qui sera détaillée dans les chapitres suivants.
+
+\chapter{ANALYSE ET CONCEPTION}
+\addcontentsline{toc}{chapter}{Analyse et Conception}
+\section{Introduction}
+La phase d'analyse et de conception est le fondement de tout projet logiciel réussi. C'est l'étape où les idées abstraites se transforment en plans structurés, où les besoins se cristallisent en fonctionnalités tangibles. Une conception rigoureuse est un prérequis pour garantir que la solution développée soit non seulement pertinente, mais aussi robuste, cohérente et évolutive. Ce chapitre présente en détail la démarche de conception suivie, en commenquant par la spécification des besoins fonctionnels et non fonctionnels, puis en décrivant l'architecture globale du système et en terminant par la modélisation des données et des interactions.
+
+\section{Analyse des besoins}
+La première étape de la conception consiste à définir de manière exhaustive les exigences du système. Cette analyse se divise en deux catégories : les besoins fonctionnels, qui décrivent ce que le système doit faire, et les besoins non fonctionnels, qui définissent comment il doit le faire.
+
+\subsection{Besoins fonctionnels : Spécifications des fonctionnalités}
+Les besoins fonctionnels décrivent les fonctionnalités que l'application doit offrir à ses utilisateurs. Ils ont été formalisés pour chaque rôle identifié dans le système.
+
+\subsubsection{Pour l'Administrateur (Profil de Gestion)}
+L'administrateur dispose des droits les plus étendus pour configurer et superviser le système.
+\begin{itemize}
+    \item \textbf{Gestion des Comptes Utilisateurs :} CRUD (Create, Read, Update, Delete) sur les comptes étudiants et professeurs, gestion des rôles et des permissions.
+    \item \textbf{Gestion des Ressources :} CRUD sur les salles (capacité, équipements), gestion des périodes académiques.
+    \item \textbf{Gestion des Contraintes :} Saisie et modification des contraintes de disponibilité des professeurs.
+    \item \textbf{Processus de Planification :} Déclenchement de la génération automatique du planning, consultation des résultats, ajustements manuels (drag-and-drop sur un calendrier), et validation pour publication.
+    \item \textbf{Supervision et Reporting :} Accès à un tableau de bord statistique, consultation des rapports d'analyse de plagiat, génération d'exports (PDF, CSV) des plannings.
+\end{itemize}
+
+\subsubsection{Pour le Professeur / Membre de Jury (Profil d'Évaluateur)}
+Le professeur interagit avec le système pour gérer ses disponibilités et accomplir ses missions de jury.
+\begin{itemize}
+    \item \textbf{Gestion de Profil :} Authentification sécurisée, mise à jour des informations personnelles et déclaration des périodes d'indisponibilité.
+    \item \textbf{Consultation des Soutenances :} Accès à un tableau de bord personnalisé affichant le planning des soutenances auxquelles il est assigné.
+    \item \textbf{Accès aux Documents :} Consultation et téléchargement des mémoires des étudiants à évaluer, ainsi que des rapports de plagiat associés.
+\end{itemize}
+
+\subsubsection{Pour l'Étudiant (Profil Soumissionnaire)}
+L'étudiant utilise la plateforme principalement pour soumettre son travail et consulter les informations relatives à sa soutenance.
+\begin{itemize}
+    \item \textbf{Gestion de la Soumission :} Authentification sécurisée, interface de dépôt pour le mémoire (fichier PDF) avec validation du format, consultation du statut du dépôt.
+    \item \textbf{Consultation des Informations :} Accès à un espace personnel affichant les informations de sa soutenance (date, heure, salle, jury) une fois le planning publié.
+\end{itemize}
+
+\subsection{Besoins non fonctionnels : Critères de qualité et de performance}
+Ces besoins définissent les contraintes et les qualités attendues du système.
+\begin{itemize}
+    \item \textbf{Sécurité :} Le système doit garantir la confidentialité, l'intégrité et l'authenticité des données. Cela implique une authentification robuste, une gestion fine des droits d'accès (RBAC - Role-Based Access Control), la protection contre les vulnérabilités web communes (OWASP Top 10), et le chiffrement des données sensibles (mots de passe).
+    \item \textbf{Performance :} L'application doit offrir des temps de réponse rapides. Le moteur de planification doit pouvoir traiter un volume important de contraintes dans un temps acceptable (de l'ordre de quelques minutes). L'interface utilisateur doit être fluide et réactive, même avec un grand nombre d'utilisateurs connectés.
+    \item \textbf{Ergonomie et Accessibilité :} L'interface doit être intuitive et facile d'utilisation pour des utilisateurs aux compétences techniques variées. Le design doit être clair et cohérent. L'application doit respecter les standards d'accessibilité web (WCAG) pour être utilisable par les personnes en situation de handicap.
+    \item \textbf{Fiabilité :} Le système doit présenter un haut niveau de disponibilité (haute disponibilité), en particulier pendant les périodes critiques. Des mécanismes de sauvegarde et de récupération en cas d'incident doivent être prévus. La persistance et la cohérence des données doivent être garanties.
+    \item \textbf{Maintenabilité et Évolutivité :} L'architecture logicielle doit être modulaire pour faciliter les corrections et les évolutions futures. Le code doit être clair, documenté et suivre des conventions de nommage et de style rigoureuses. Le système doit pouvoir s'adapter à une augmentation du volume de données et du nombre d'utilisateurs.
+\end{itemize}
+
+\section{Architecture globale : Structure de la solution logicielle}
+Pour répondre à ces exigences, une architecture logicielle moderne, distribuée et basée sur des services a été retenue. Le modèle architectural est une architecture à trois tiers (three-tier), qui sépare clairement les responsabilités en trois couches logiques distinctes :
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{Front-end/public/assets/logo.png} % Placeholder for a real architecture diagram
+    \caption{Diagramme de l'architecture globale à trois tiers}
+    \label{fig:arch_globale}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{La Couche de Présentation (Client / Frontend) :} Il s'agit de l'interface utilisateur avec laquelle l'utilisateur interagit. Elle est implémentée sous la forme d'une application web cliente riche (Single Page Application - SPA) s'exécutant dans le navigateur de l'utilisateur. Sa responsabilité est d'afficher les données, de capter les interactions de l'utilisateur et de communiquer avec la couche applicative.
+    \item \textbf{La Couche Applicative (Serveur / Backend) :} C'est le cœur du système, où réside la logique métier. Elle traite les requêtes provenant de la couche de présentation, exécute les opérations demandées (calculs, validations), et interagit avec la couche de données. Elle expose ses fonctionnalités via une API (Application Programming Interface) REST.
+    \item \textbf{La Couche de Données (Base de Données) :} Elle est responsable du stockage persistant et structuré de toutes les informations de l'application. Elle est interrogée et mise à jour exclusivement par la couche applicative.
+\end{itemize}
+Cette séparation des préoccupations (Separation of Concerns) est un principe d'ingénierie logicielle fondamental qui favorise la modularité, la flexibilité et la maintenabilité du système. Le frontend et le backend peuvent ainsi être développés, testés et déployés de manière indépendante.
+
+\subsection{Architecture détaillée du Backend (Couche Applicative)}
+Le backend a été conçu selon une architecture en couches, favorisant la séparation des responsabilités.
+\begin{itemize}
+    \item \textbf{Couche API (API Layer) :} C'est la porte d'entrée du backend. Elle est constituée d'un ensemble de "points d'entrée" (endpoints) qui définissent l'API REST. Cette couche, gérée par le framework Flask, est responsable de la réception des requêtes HTTP, de leur validation initiale, de l'authentification, et de l'appel aux services métier appropriés.
+    \item \textbf{Couche de Services (Service Layer) :} Elle implémente la logique métier de l'application. Chaque service est responsable d'un domaine fonctionnel spécifique (ex: `SoutenanceService` pour la logique de planification, `UserService` pour la gestion des utilisateurs). Cette couche orchestre les opérations en faisant appel à la couche d'accès aux données.
+    \item \textbf{Couche d'Accès aux Données (Data Access Layer - DAL) :} Cette couche, souvent implémentée via le patron de conception DAO (Data Access Object), abstrait et centralise toute la communication avec la base de données. Elle expose des méthodes pour les opérations CRUD (Create, Read, Update, Delete) sur les entités du système. Cela permet de découpler la logique métier des détails d'implémentation de la base de données.
+    \item \textbf{Couche Modèles (Model Layer) :} Elle définit la structure des objets métier et leur correspondance (mapping) avec les tables de la base de données. Nous utilisons un ORM (Object-Relational Mapper), SQLAlchemy, qui automatise ce mapping et permet de manipuler les données sous forme d'objets Python.
+    \item \textbf{Gestion des Tâches Asynchrones (Asynchronous Task Queue) :} Pour les traitements longs (planification, analyse de plagiat), le système utilise une file d'attente de tâches (Celery) et des processus de travail dédiés (workers). Lorsqu'une requête pour une tâche longue arrive, elle est placée dans la file et le client reçoit une réponse immédiate. Un worker la prendra en charge en arrière-plan, garantissant ainsi que l'application principale reste réactive.
+\end{itemize}
+
+\subsection{Architecture détaillée du Frontend (Couche de Présentation)}
+Le frontend est développé en tant que Single Page Application (SPA) avec la bibliothèque React.
+\begin{itemize}
+    \item \textbf{Structure en Composants :} L'interface est décomposée en composants hiérarchiques et réutilisables. Chaque partie de l'UI (un bouton, un formulaire, une page entière) est un composant, ce qui favorise la modularité et la cohérence.
+    \item \textbf{Gestion de l'État (State Management) :} L'état de l'application (données affichées, informations sur l'utilisateur connecté, etc.) est géré de manière centralisée à l'aide des outils fournis par React (Hooks, Context API). Cela assure que l'interface est toujours une représentation cohérente de l'état des données.
+    \item \textbf{Routage Côté Client (Client-Side Routing) :} La navigation entre les différentes vues de l'application est gérée par React Router, qui intercepte les changements d'URL et met à jour l'interface sans nécessiter un rechargement complet de la page, offrant une expérience utilisateur fluide.
+    \item \textbf{Communication avec l'API :} Des services dédiés, utilisant la bibliothèque Axios, encapsulent tous les appels à l'API du backend, centralisant la logique de communication et la gestion des erreurs.
+\end{itemize}
+
+\section{Modélisation de la solution}
+La modélisation consiste à représenter de manière formelle la structure et le comportement du système.
+
+\subsection{Diagramme de cas d’utilisation}
+Le diagramme de cas d'utilisation formalise les interactions entre les acteurs et le système, en identifiant les fonctionnalités clés. Le tableau suivant récapitule les cas d'utilisation majeurs.
+
+\begin{table}[h!]
+\caption{Tableau Récapitulatif des Cas d'Utilisation}
+\label{tab:cas_utilisation_recap}
+\centering
+\begin{tabular}{|p{3cm}|p{5cm}|p{7cm}|}
+\hline
+\textbf{Acteur} & \textbf{Cas d'Utilisation} & \textbf{Description} \\
+\hline
+\textit{Administrateur} & Gérer les Comptes Utilisateurs & CRUD sur les profils étudiants et professeurs. \\
+& Gérer les Ressources Matérielles & CRUD sur les salles de soutenance. \\
+& Configurer la Planification & Saisir les contraintes de disponibilité et les règles métier. \\
+& Exécuter la Planification & Lancer le moteur d'optimisation et valider le planning. \\
+\hline
+\textit{Professeur} & Gérer ses Disponibilités & Déclarer ses périodes d'indisponibilité. \\
+& Consulter son Planning de Jury & Visualiser les soutenances qui lui sont assignées. \\
+& Accéder aux Documents & Consulter les mémoires et rapports de plagiat. \\
+\hline
+\textit{Étudiant} & Soumettre son Mémoire & Uploader son document de fin d'études. \\
+& Consulter sa Soutenance & Visualiser les informations relatives à sa soutenance. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Diagrammes de séquence (Description Narrative)}
+Ces descriptions illustrent la chronologie des interactions entre les composants du système pour deux scénarios clés.
+
+\subsubsection{Scénario 1 : Soumission d'un Mémoire par un Étudiant}
+\begin{enumerate}
+    \item \textbf{Utilisateur (Étudiant)} : Interagit avec l'\textbf{Interface Web (Frontend)} pour soumettre son fichier.
+    \item \textbf{Frontend} : Envoie une requête HTTP POST sécurisée contenant le fichier et les métadonnées au \textbf{Serveur API (Backend)}.
+    \item \textbf{Backend (API Layer)} : Reçoit la requête, authentifie l'utilisateur, et la transmet au \textbf{Service de Gestion des Rapports}.
+    \item \textbf{Service de Gestion des Rapports} : Valide les données, orchestre le stockage du fichier sur un système de fichiers dédié, puis instruit le \textbf{DAO} d'enregistrer les métadonnées (chemin du fichier, ID de l'étudiant, date) dans la \textbf{Base de Données}.
+    \item \textbf{DAO} : Exécute la transaction d'insertion dans la base de données.
+    \item \textbf{Backend} : Lance une tâche asynchrone (via Celery) pour l'analyse de plagiat du nouveau fichier.
+    \item \textbf{Backend} : Renvoie une réponse de succès (HTTP 201 Created) au \textbf{Frontend}.
+    \item \textbf{Frontend} : Affiche un message de confirmation à l'utilisateur.
+\end{enumerate}
+
+\subsubsection{Scénario 2 : Génération du Planning par l'Administrateur}
+\begin{enumerate}
+    \item \textbf{Utilisateur (Administrateur)} : Déclenche l'action via un bouton sur l'\textbf{Interface Web (Frontend)}.
+    \item \textbf{Frontend} : Envoie une requête HTTP POST au \textbf{Serveur API (Backend)}.
+    \item \textbf{Backend (API Layer)} : Authentifie l'administrateur, valide la requête, et crée une nouvelle tâche de planification qu'elle envoie à la \textbf{File d'Attente de Tâches (Celery/Redis)}.
+    \item \textbf{Backend} : Renvoie immédiatement une réponse HTTP 202 Accepted au \textbf{Frontend}, indiquant que la tâche est acceptée pour traitement.
+    \item \textbf{Worker Celery} (processus en arrière-plan) : Récupère la tâche de la file d'attente.
+    \item \textbf{Worker Celery} : Interroge la \textbf{Base de Données} via le \textbf{DAO} pour obtenir toutes les données nécessaires (étudiants, professeurs, salles, contraintes).
+    \item \textbf{Worker Celery} : Construit le modèle mathématique du problème et le soumet au \textbf{Moteur d'Optimisation (Google OR-Tools)}.
+    \item \textbf{Moteur d'Optimisation} : Calcule la solution optimale.
+    \item \textbf{Worker Celery} : Récupère la solution et instruit le \textbf{DAO} de l'enregistrer dans la \textbf{Base de Données} (création des entrées `Defense` et `JuryMember`).
+    \item \textbf{Frontend} : Interroge périodiquement un endpoint de statut ou reçoit une notification pour afficher le résultat à l'administrateur une fois la tâche terminée.
+\end{enumerate}
+
+\subsection{Modèle de la base de données (Schéma Entité-Association)}
+Le modèle de données est au cœur de notre application. Il définit la structure de l'information et les relations entre les différentes entités. Une description des tables principales est fournie en Annexe.
+
+\section{Conclusion}
+Cette phase de conception rigoureuse a permis de traduire un besoin métier complexe en une architecture logicielle structurée, modulaire et robuste. Les choix architecturaux, tels que la séparation frontend/backend et l'utilisation de services et de couches bien définies, posent les fondations d'une application performante, maintenable et évolutive. La modélisation détaillée des interactions et des données a permis de s'assurer que tous les aspects fonctionnels sont couverts de manière cohérente. Armés de ces plans précis, nous pouvons désormais aborder avec confiance la phase d'implémentation.
+
+\chapter{RÉALISATION ET IMPLÉMENTATION}
+\addcontentsline{toc}{chapter}{Réalisation et Implémentation}
+\section{Introduction}
+La phase de réalisation et d'implémentation constitue la concrétisation de la conception architecturale définie précédemment. Durant cette étape, les concepts et les modèles se transforment en une application fonctionnelle à travers l'écriture du code et la configuration des infrastructures. Ce chapitre présente en détail les technologies sélectionnées et justifie ces choix au regard des exigences du projet. Il décrit ensuite la mise en œuvre des modules clés de l'application, en se concentrant sur la logique interne et les mécanismes de fonctionnement des composants les plus complexes, tels que le moteur de planification et le système de détection de plagiat.
+
+\section{Technologies utilisées : Stack Technique du Projet}
+La sélection d'une "stack" technologique cohérente et performante est un facteur clé de succès. Nos choix ont été guidés par des critères de robustesse, de maturité, de performance et de richesse de l'écosystème de chaque technologie.
+
+\subsection{Pour le Backend (Couche Applicative)}
+\begin{itemize}
+    \item \textbf{Langage de Programmation : Python (version 3.12)}
+    \begin{itemize}
+        \item \textit{Justification :} La syntaxe claire de Python et son paradigme orienté objet favorisent un développement rapide et un code maintenable. Son vaste écosystème de bibliothèques tierces, notamment pour la science des données (`Pandas`, `NumPy`), l'optimisation (`OR-Tools`) et le développement web, en fait un choix naturel pour un projet nécessitant à la fois une logique métier complexe et des capacités d'analyse avancées. Sa maturité et sa stabilité en font un choix sûr pour des applications critiques.
+    \end{itemize}
+    \item \textbf{Framework Web : Flask}
+    \begin{itemize}
+        \item \textit{Justification :} Flask est un micro-framework WSGI (Web Server Gateway Interface) qui offre une grande flexibilité. Sa légèreté permet de construire une application sur mesure, en n'intégrant que les extensions nécessaires. Cette approche est particulièrement adaptée à la création d'API RESTful découplées et performantes, sans la surcharge d'un framework plus monolithique comme Django.
+    \end{itemize}
+    \item \textbf{ORM (Object-Relational Mapper) : SQLAlchemy}
+    \begin{itemize}
+        \item \textit{Justification :} SQLAlchemy est l'outil de référence en Python pour l'interaction avec les bases de données SQL. Il fournit une abstraction puissante qui permet de manipuler les données via des objets Python, tout en offrant un contrôle fin sur les requêtes SQL si nécessaire. Il assure la portabilité du code entre différents systèmes de bases de données (PostgreSQL, MySQL, etc.).
+    \end{itemize}
+    \item \textbf{Gestion des Tâches Asynchrones : Celery avec Redis}
+    \begin{itemize}
+        \item \textit{Justification :} Celery est un système de gestion de files de tâches distribuées robuste et scalable. Il est indispensable pour exécuter des processus longs en arrière-plan sans impacter la réactivité de l'API. Redis, un système de stockage de données en mémoire extrêmement rapide, est utilisé comme "broker" (courtier) pour gérer la file d'attente des messages entre l'application Flask et les workers Celery.
+    \end{itemize}
+    \item \textbf{Moteur d'Optimisation : Google OR-Tools}
+    \begin{itemize}
+        \item \textit{Justification :} Cette bibliothèque open-source de Google est spécialisée dans la résolution de problèmes d'optimisation combinatoire. Son solveur CP-SAT est particulièrement performant pour les problèmes de planification sous contraintes (Constraint Programming), ce qui correspond exactement à notre besoin pour la génération des plannings.
+    \end{itemize}
+    \item \textbf{Gestion de l'Authentification : Flask-JWT-Extended}
+    \begin{itemize}
+        \item \textit{Justification :} Pour sécuriser l'API, nous avons implémenté une authentification basée sur les JSON Web Tokens (JWT). Cette extension Flask simplifie la création, la distribution et la vérification de ces jetons, fournissant un mécanisme de sécurité stateless (sans état) adapté à une API REST.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Pour le Frontend (Couche de Présentation)}
+\begin{itemize}
+    \item \textbf{Langage : TypeScript}
+    \begin{itemize}
+        \item \textit{Justification :} En ajoutant un typage statique à JavaScript, TypeScript permet de détecter de nombreuses erreurs au moment de la compilation plutôt qu'à l'exécution. Cela améliore la robustesse, la lisibilité et la maintenabilité du code frontend, un atout majeur pour une application complexe.
+    \end{itemize}
+    \item \textbf{Bibliothèque d'Interface Utilisateur : React (version 18)}
+    \begin{itemize}
+        \item \textit{Justification :} React est la bibliothèque de référence pour la construction d'interfaces utilisateur dynamiques. Son modèle à base de composants permet de créer des UI modulaires et réutilisables. Son "DOM virtuel" assure des mises à jour performantes de l'interface, garantissant une expérience utilisateur fluide.
+    \end{itemize}
+    \item \textbf{Outil de Build : Vite}
+    \begin{itemize}
+        \item \textit{Justification :} Vite optimise l'expérience de développement en offrant un serveur de développement avec rechargement à chaud (Hot Module Replacement - HMR) quasi instantané. Pour la production, il génère un bundle de fichiers statiques hautement optimisé.
+    \end{itemize}
+    \item \textbf{Client HTTP : Axios}
+    \begin{itemize}
+        \item \textit{Justification :} Axios est un client HTTP basé sur les promesses qui simplifie l'interaction avec l'API REST du backend. Il offre une interface claire pour gérer les requêtes, les réponses, les erreurs et les timeouts.
+    \end{itemize}
+    \item \textbf{Bibliothèque de Composants : Material-UI (MUI)}
+    \begin{itemize}
+        \item \textit{Justification :} L'utilisation d'une bibliothèque de composants UI comme MUI a permis d'accélérer le développement en fournissant un ensemble de composants esthétiques, accessibles et personnalisables, conformes aux standards du Material Design.
+    \end{itemize}
+    \item \textbf{Routage Côté Client : React Router}
+    \begin{itemize}
+        \item \textit{Justification :} React Router est la solution standard pour gérer la navigation au sein d'une Single Page Application React, permettant une expérience de navigation fluide sans rechargement de page.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Pour l'Infrastructure et la Base de Données}
+\begin{itemize}
+    \item \textbf{Base de Données : PostgreSQL}
+    \begin{itemize}
+        \item \textit{Justification :} PostgreSQL est un SGBDR open-source reconnu pour sa fiabilité, sa robustesse et son respect des standards SQL. Ses fonctionnalités avancées et sa capacité à gérer des charges de travail complexes en font un choix idéal pour une application nécessitant une forte intégrité des données.
+    \end{itemize}
+    \item \textbf{Contrôle de Version : Git et GitHub}
+    \begin{itemize}
+        \item \textit{Justification :} Git est le standard de facto pour le contrôle de version, indispensable pour le travail collaboratif et le suivi des modifications. GitHub a été utilisé comme plateforme d'hébergement centralisée pour le code source et la gestion de projet.
+    \end{itemize}
+\end{itemize}
+
+\section{Mise en œuvre des fonctionnalités clés}
+L'implémentation a consisté à traduire la conception en code fonctionnel, en se concentrant sur la modularité et la robustesse.
+
+\subsection{Le Moteur de Planification Automatique}
+Cette fonctionnalité, au cœur de l'application, a été implémentée en suivant une approche rigoureuse.
+
+\subsubsection{Modélisation Mathématique avec Google OR-Tools}
+Le processus, encapsulé dans un service Python dédié, suit les étapes suivantes :
+\begin{enumerate}
+    \item \textbf{Définition des Variables de Décision :} Pour chaque triplet (étudiant, créneau, salle), une variable booléenne est créée pour indiquer si la soutenance a lieu. De même, pour chaque paire (professeur, soutenance), une variable booléenne est définie pour l'affectation au jury.
+    \item \textbf{Implémentation des Contraintes Dures (Hard Constraints) :} Ce sont les règles qui doivent impérativement être respectées. Elles ont été traduites en contraintes dans le modèle CP-SAT :
+    \begin{itemize}
+        \item Chaque étudiant doit avoir exactement une soutenance.
+        \item Une salle ne peut être utilisée que pour une seule soutenance par créneau.
+        \item Un professeur ne peut participer qu'à une seule soutenance par créneau.
+        \item Les affectations doivent respecter les indisponibilités déclarées par les professeurs.
+        \item La composition de chaque jury doit être conforme aux règles (ex: 1 président, 2 examinateurs).
+    \end{itemize}
+    \item \textbf{Implémentation des Contraintes Souples (Soft Constraints) :} Ce sont des préférences que le système tente de satisfaire au mieux. Elles sont intégrées à la fonction objectif du solveur. Par exemple, on peut chercher à :
+    \begin{itemize}
+        \item Minimiser les "trous" dans les emplois du temps des professeurs.
+        \item Maximiser l'adéquation entre l'expertise des professeurs et le sujet du mémoire.
+        \item Équilibrer la charge de travail entre les professeurs.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Orchestration Asynchrone}
+L'ensemble du processus de planification est encapsulé dans une tâche Celery. L'endpoint API Flask ne fait que créer cette tâche et renvoyer son ID à l'utilisateur. Le frontend peut alors suivre l'état d'avancement de la tâche. Cette architecture asynchrone est cruciale pour ne pas bloquer l'interface utilisateur pendant le calcul, qui peut prendre plusieurs minutes pour des problèmes de grande taille.
+
+\subsection{Le Système de Détection de Plagiat}
+Cette fonctionnalité est également gérée de manière asynchrone.
+\begin{enumerate}
+    \item \textbf{Extraction et Prétraitement du Texte :} Une tâche Celery est déclenchée après le dépôt d'un rapport. La bibliothèque `PyPDF` est utilisée pour extraire le contenu textuel du fichier PDF. Le texte est ensuite "normalisé" (conversion en minuscules, suppression de la ponctuation et des caractères non pertinents) pour préparer l'analyse.
+    \item \textbf{Analyse de Similarité :} Des algorithmes de traitement du langage naturel (NLP) sont appliqués pour calculer la similarité. Des techniques comme le "shingling" (découpage du texte en petits morceaux uniques) et la comparaison des ensembles de shingles (indice de Jaccard) sont utilisées pour identifier les zones de forte similarité avec une base de données de documents de référence.
+    \item \textbf{Génération de Rapport et Analyse par IA :} Le système génère un score de similarité global et un rapport visuel surlignant les passages concernés. Ensuite, l'API de `google-generativeai` est appelée. Le texte des passages similaires et leurs sources sont fournis au modèle de langage, avec pour instruction de contextualiser ces similarités et de fournir une évaluation qualitative, distinguant les citations légitimes du plagiat potentiel. Ce résumé est stocké avec le rapport.
+\end{enumerate}
+
+\subsection{Développement de l'Interface Utilisateur (Frontend)}
+Le frontend a été développé en suivant une approche de composition de composants, avec une attention particulière portée à la séparation des responsabilités.
+\begin{itemize}
+    \item \textbf{Composants de Présentation (Dumb Components) :} La majorité des composants sont purement présentationnels. Ils reçoivent des données en entrée (`props`) et affichent une interface, sans avoir de logique métier propre.
+    \item \textbf{Composants Conteneurs (Smart Components) :} Quelques composants de plus haut niveau sont responsables de la récupération des données (via les services API) et de la gestion de l'état, qu'ils transmettent ensuite aux composants de présentation.
+    \item \textbf{Services API :} Un service Axios a été créé pour chaque domaine fonctionnel de l'API backend (ex: `authService`, `defenseService`). Cela centralise la communication avec le serveur et facilite la gestion des jetons d'authentification et des erreurs.
+    \item \textbf{Guards de Routage :} La sécurité côté client est renforcée par des "guards" de routage. Ces composants (`StudentGuard.tsx`, `AdminGuard.tsx`) vérifient le rôle de l'utilisateur connecté avant d'autoriser l'accès à une route protégée, redirigeant les utilisateurs non autorisés.
+\end{itemize}
+
+\section{Conclusion}
+La phase d'implémentation a permis de transformer la conception architecturale en une application robuste et fonctionnelle. Le choix d'une stack technologique moderne et éprouvée, combiné à une architecture logicielle rigoureuse, a été déterminant pour le succès du projet. Les défis techniques, notamment autour de l'optimisation et du traitement asynchrone, ont été surmontés grâce à une approche méthodique. La solution logicielle qui en résulte est non seulement performante et fiable, mais également maintenable et prête à évoluer.
+
+\chapter{RÉSULTATS ET PERSPECTIVES}
+\addcontentsline{toc}{chapter}{Résultats et Perspectives}
+\section{Résultats obtenus et Analyse de la Valeur Ajoutée}
+Le projet a abouti à la livraison d'une application web entièrement fonctionnelle qui répond aux objectifs stratégiques définis initialement. Au-delà du produit logiciel lui-même, le principal résultat est la refonte et l'optimisation d'un processus métier critique au sein de l'institution. La valeur ajoutée de la solution peut être évaluée sur plusieurs axes.
+
+\subsection{Optimisation Opérationnelle et Gains de Productivité}
+Le bénéfice le plus tangible est l'automatisation de la planification. Le temps nécessaire à la génération d'un planning complet et sans conflit est passé de plusieurs jours de travail manuel à quelques minutes de calcul automatique. Cela représente une réduction drastique de la charge de travail administrative, libérant des ressources pour des tâches à plus forte valeur ajoutée.
+
+\subsection{Fiabilisation et Qualité du Processus}
+En éliminant les erreurs humaines inhérentes à la planification manuelle, le système garantit un niveau de fiabilité et de précision inédit. Les conflits d'horaires, les doubles affectations et les oublis sont prévenus par conception. La qualité du planning est également améliorée, le moteur d'optimisation étant capable de trouver des solutions plus équilibrées et efficaces qu'un opérateur humain.
+
+\subsection{Centralisation et Transparence de l'Information}
+L'application constitue désormais une source unique et fiable de vérité pour toutes les informations relatives aux soutenances. Cette centralisation met fin à la fragmentation de l'information et à la prolifération de documents obsolètes. Chaque acteur dispose d'un accès en temps réel à une information pertinente et personnalisée, ce qui améliore la communication et réduit significativement l'incertitude et le stress.
+
+\subsection{Renforcement de l'Intégrité Académique}
+L'intégration systématique d'une analyse de plagiat pour chaque mémoire soumis est une avancée majeure. En fournissant aux jurys un rapport objectif et détaillé, enrichi par une analyse qualitative par IA, l'application dote l'institution d'un outil puissant pour promouvoir l'originalité des travaux et garantir la valeur de ses diplômes.
+
+\subsection{Amélioration de l'Expérience Utilisateur}
+L'ergonomie des interfaces et la personnalisation des parcours pour chaque rôle contribuent à une meilleure adoption de l'outil et à une satisfaction accrue des utilisateurs. Le processus est perçu comme plus simple, plus juste et plus moderne.
+
+\subsection{Tableau Récapitulatif des Bénéfices}
+
+\begin{longtable}{|p{4cm}|p{5cm}|p{5cm}|}
+\caption{Synthèse de la Valeur Ajoutée de la Solution} \\
+\hline
+\textbf{Axe d'Amélioration} & \textbf{Situation Initiale (Avant Projet)} & \textbf{Situation Cible (Avec l'Application)} \\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlast
+\textbf{Efficacité Administrative} & Processus manuel, chronophage, forte charge de travail à faible valeur ajoutée. & \textbf{Processus automatisé}, gain de temps massif, réaffectation des ressources administratives. \\
+\textbf{Fiabilité du Planning} & Risque élevé d'erreurs, de conflits et d'incohérences. & \textbf{Planning garanti sans conflit}, cohérent et fiable, généré par un algorithme. \\
+\textbf{Qualité du Planning} & Sous-optimal, basé sur des compromis manuels. & \textbf{Optimisé} selon des critères objectifs (réduction des temps morts, équité). \\
+\textbf{Accès à l'Information} & Fragmenté, dépendant d'échanges d'e-mails, manque de visibilité. & \textbf{Centralisé et en temps réel}, via des portails personnalisés. \\
+\textbf{Intégrité Académique} & Vérification du plagiat non systématique, fastidieuse. & \textbf{Systématique et approfondie}, avec un rapport détaillé pour chaque mémoire. \\
+\textbf{Satisfaction des Acteurs} & Stress, incertitude, frustration dus à la complexité et à l'opacité. & \textbf{Expérience simplifiée}, transparente et perçue comme plus juste et moderne. \\
+\end{longtable}
+
+\section{Difficultés rencontrées et Enseignements Tirés}
+La conduite du projet a été jalonnée de défis techniques et méthodologiques, qui ont tous été des opportunités d'apprentissage.
+
+\begin{itemize}
+    \item \textbf{Modélisation pour l'Optimisation :} La traduction des contraintes métier en un modèle mathématique pour Google OR-Tools a été le principal défi technique. La difficulté résidait dans la formalisation de règles parfois implicites et dans la gestion de la complexité combinatoire.
+    \textit{Enseignement :} L'importance d'une collaboration étroite avec les experts du domaine fonctionnel pour bien comprendre et formaliser les règles, et la nécessité d'une approche de modélisation itérative et de validation progressive.
+
+    \item \textbf{Gestion des Tâches Asynchrones :} Assurer la robustesse de l'architecture asynchrone (Celery/Redis) a nécessité une configuration fine et des mécanismes de gestion des erreurs et de relance des tâches.
+    \textit{Enseignement :} La nécessité de concevoir des systèmes distribués avec une attention particulière à la résilience, au monitoring et à l'idempotence des tâches.
+
+    \item \textbf{Cohérence de l'État du Frontend :} Maintenir une synchronisation parfaite entre l'état de l'interface utilisateur et les données du backend, surtout après des opérations asynchrones, a été un enjeu constant.
+    \textit{Enseignement :} La maîtrise des patrons de conception de gestion d'état côté client (state management patterns) est cruciale pour le développement d'applications web riches et réactives.
+
+    \item \textbf{Sécurité :} La sécurisation de l'API et la protection des données ont exigé une vigilance de tous les instants, de la validation des entrées à la gestion des permissions.
+    \textit{Enseignement :} La sécurité n'est pas une fonctionnalité, mais une exigence transversale qui doit être intégrée dès le début du cycle de développement ("Security by Design").
+\end{itemize}
+
+\section{Perspectives d’amélioration et Évolutions Futures}
+L'application actuelle constitue une plateforme solide sur laquelle de nombreuses extensions peuvent être envisagées pour enrichir encore sa valeur ajoutée.
+
+\begin{itemize}
+    \item \textbf{Module d'Évaluation en Ligne :} Développer un module complet permettant aux membres du jury de saisir leurs notes et commentaires directement sur la plateforme. Cela permettrait la génération automatique des procès-verbaux de soutenance et la publication sécurisée des résultats aux étudiants.
+    \item \textbf{Notifications en Temps Réel :} Intégrer des WebSockets pour une communication en temps réel, afin de notifier instantanément les utilisateurs des événements importants (publication d'un planning, modification d'une soutenance, disponibilité d'un rapport).
+    \item \textbf{Développement d'une Application Mobile :} Créer une application mobile compagnon (iOS/Android) pour permettre aux étudiants et professeurs de consulter leurs plannings et de recevoir des notifications en situation de mobilité.
+    \item \textbf{Analytique et Aide à la Décision :} Enrichir les tableaux de bord administratifs avec des outils d'analyse de données (Data Analytics) pour visualiser des tendances (charge de travail par enseignant, taux de réussite, etc.) et aider à la prise de décision stratégique.
+    \item \textbf{Intégration avec le Système d'Information :} Renforcer l'intégration avec le système d'information de l'établissement, notamment via une connexion à l'annuaire central (LDAP/CAS) pour une authentification unique (Single Sign-On - SSO) et une synchronisation avec les logiciels de scolarité.
+\end{itemize}
+
+\chapter{CONCLUSION GÉNÉRALE}
+\addcontentsline{toc}{chapter}{Conclusion Générale}
+Le projet de conception et de réalisation d'une application web pour la gestion des soutenances a permis de répondre de manière efficace et innovante à une problématique opérationnelle complexe et persistante dans le milieu académique. En partant d'une analyse critique des processus manuels existants, caractérisés par leur lourdeur, leur manque de fiabilité et leur opacité, nous avons développé une solution numérique intégrée qui apporte une plus-value significative à l'ensemble des parties prenantes.
+
+La démarche adoptée, conforme aux standards de l'ingénierie logicielle, a couvert l'ensemble du cycle de vie du projet. La phase d'analyse a permis de traduire des besoins métiers concrets en spécifications fonctionnelles et non fonctionnelles rigoureuses. La conception architecturale, basée sur un modèle à trois tiers et une séparation claire des responsabilités, a jeté les bases d'un système robuste, maintenable et évolutif. La phase de réalisation a concrétisé cette vision à travers une stack technologique moderne et une implémentation soignée des fonctionnalités clés, notamment le moteur de planification automatique et le module d'analyse de plagiat.
+
+Les résultats obtenus démontrent l'atteinte des objectifs fixés. L'application constitue une solution opérationnelle qui optimise drastiquement le temps de planification, fiabilise le processus, centralise l'information et renforce l'intégrité académique. Elle transforme une tâche administrative fastidieuse en un processus fluide, transparent et contrôlé.
+
+Les défis techniques rencontrés, notamment dans les domaines de l'optimisation combinatoire et de l'architecture des systèmes distribués, ont été surmontés avec méthode et ont constitué une expérience d'ingénierie des plus formatrices. Ils soulignent l'importance d'une conception rigoureuse et d'une approche itérative dans la résolution de problèmes complexes.
+
+Le produit logiciel livré est une plateforme solide et pérenne, mais il constitue également une première étape vers une digitalisation plus poussée des processus académiques. Les perspectives d'évolution identifiées, qu'il s'agisse de l'évaluation en ligne, des notifications temps réel ou de l'analyse prédictive, montrent le potentiel considérable de la solution et ouvrent la voie à de futurs travaux de développement.
+
+En conclusion, ce projet représente une contribution significative à la modernisation de la gestion universitaire. Il illustre comment l'application raisonnée des technologies de l'information peut non seulement résoudre des problèmes pragmatiques, mais aussi améliorer la qualité de service et l'efficacité globale d'une institution. La solution développée est un atout stratégique, prêt à être déployé et à servir de catalyseur pour une gestion plus agile et plus intelligente des soutenances académiques.
+
+\chapter*{RÉFÉRENCES BIBLIOGRAPHIQUES}
+\addcontentsline{toc}{chapter}{Références Bibliographiques}
+\begin{thebibliography}{99}
+    \bibitem{flask} The Pallets Projects. (2024). \textit{Flask Documentation}. [En ligne]. Disponible sur: \url{https://flask.palletsprojects.com/} (Consulté le 21 décembre 2025).
+    \bibitem{react} Meta and community. (2024). \textit{React Documentation}. [En ligne]. Disponible sur: \url{https://react.dev/} (Consulté le 21 décembre 2025).
+    \bibitem{ortools} Google. (2024). \textit{Google OR-Tools Documentation}. [En ligne]. Disponible sur: \url{https://developers.google.com/optimization} (Consulté le 21 décembre 2025).
+    \bibitem{celery} Celery Project. (2024). \textit{Celery Documentation}. [En ligne]. Disponible sur: \url{https://docs.celeryq.dev/} (Consulté le 21 décembre 2025).
+    \bibitem{sqlalchemy} The SQLAlchemy Project. (2024). \textit{SQLAlchemy Documentation}. [En ligne]. Disponible sur: \url{https://www.sqlalchemy.org/} (Consulté le 21 décembre 2025).
+\end{thebibliography}
+
+\appendix
+\chapter{Schéma Conceptuel de la Base de Données}
+\addcontentsline{toc}{chapter}{Annexe A : Schéma Conceptuel de la Base de Données}
+\begin{verbatim}
+# Modèle Entité-Association (description textuelle)
+
+# Entité: Utilisateur (User)
+# Description: Représente toute personne interagissant avec le système.
+# Attributs:
+#   - id_utilisateur (PK, Identifiant unique)
+#   - nom_utilisateur (unique)
+#   - email (unique)
+#   - mot_de_passe_hache
+#   - role ('etudiant', 'professeur', 'administrateur')
+
+# Entité: Étudiant (Student)
+# Description: Spécialisation de l'entité Utilisateur.
+# Attributs:
+#   - id_etudiant (PK, FK -> User.id_utilisateur)
+#   - numero_matricule (unique)
+#   - id_directeur_memoire (FK -> Professor.id_professeur)
+
+# Entité: Professeur (Professor)
+# Description: Spécialisation de l'entité Utilisateur.
+# Attributs:
+#   - id_professeur (PK, FK -> User.id_utilisateur)
+#   - departement
+#   - domaines_expertise
+
+# Entité: Salle (Room)
+# Description: Représente une ressource matérielle.
+# Attributs:
+#   - id_salle (PK)
+#   - nom_salle (unique)
+#   - capacite
+#   - equipements
+
+# Entité: Rapport (Report)
+# Description: Le mémoire soumis par un étudiant.
+# Attributs:
+#   - id_rapport (PK)
+#   - titre
+#   - date_depot
+#   - chemin_fichier
+#   - id_etudiant (FK -> Student.id_etudiant)
+# Relation: Un Étudiant soumet un ou plusieurs Rapports.
+
+# Entité: Soutenance (Defense)
+# Description: L'événement de soutenance planifié.
+# Attributs:
+#   - id_soutenance (PK)
+#   - date_heure_debut
+#   - date_heure_fin
+#   - statut
+#   - id_rapport (FK -> Report.id_rapport, unique)
+#   - id_salle (FK -> Room.id_salle)
+# Relation: Un Rapport donne lieu à une seule Soutenance.
+# Relation: Une Salle peut accueillir plusieurs Soutenances (à des créneaux différents).
+
+# Entité: Membre du Jury (JuryMember)
+# Description: Table associative liant Professeurs et Soutenances.
+# Attributs:
+#   - id_soutenance (PK, FK -> Defense.id_soutenance)
+#   - id_professeur (PK, FK -> Professor.id_professeur)
+#   - role_jury ('president', 'examinateur')
+# Relation: Une Soutenance est évaluée par plusieurs Professeurs.
+# Relation: Un Professeur peut être membre de plusieurs jurys.
+
+# Entité: Analyse de Plagiat (PlagiarismAnalysis)
+# Description: Stocke les résultats de l'analyse d'un rapport.
+# Attributs:
+#   - id_analyse (PK)
+#   - score_similarite
+#   - statut_analyse
+#   - date_analyse
+#   - chemin_rapport_detaille
+#   - resume_ia
+#   - id_rapport (FK -> Report.id_rapport, unique)
+# Relation: Un Rapport fait l'objet d'une seule Analyse de Plagiat.
+\end{verbatim}
+
+\end{document}

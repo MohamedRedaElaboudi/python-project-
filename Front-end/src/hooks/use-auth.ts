@@ -1,5 +1,5 @@
 // src/hooks/use-auth.ts
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface User {
   id: number;

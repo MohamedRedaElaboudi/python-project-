@@ -1,93 +1,174 @@
 import React from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LinearProgress from '@mui/material/LinearProgress';
-import Stack from '@mui/material/Stack';
+import {
+  Box,
+  Card,
+  Grid,
+  Tooltip,
+  Typography,
+  CardContent,
+  LinearProgress,
+} from '@mui/material';
+import { Timeline, PieChart, BarChart, Assessment } from '@mui/icons-material';
 
-import { Assessment, Timeline } from '@mui/icons-material';
-
-interface PlagiatStatsProps {
-    totalMatches: number;
-    avgSimilarity: number;
-    highestSimilarity: number;
-    wordCount?: number;
-    readabilityScore?: number;
+interface MatchesDistribution {
+  [type: string]: number;
 }
 
-export const PlagiatStats: React.FC<PlagiatStatsProps> = ({
-    totalMatches,
-    avgSimilarity,
-    highestSimilarity,
-    wordCount,
-    readabilityScore
-}) => {
+interface PlagiatAnalysis {
+  totalWords?: number;
+  totalCharacters?: number;
+  totalParagraphs?: number;
+  totalSentences?: number;
+  uniqueWords?: number;
+  similarity_score?: number;
+  matches?: any[];
+  matchesDistribution?: MatchesDistribution;
+}
 
-    return (
-        <Card>
-            <CardContent>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                    Statistiques de l'analyse
+interface PlagiatStatsProps {
+  analysis: PlagiatAnalysis;
+}
+
+export const PlagiatStats: React.FC<PlagiatStatsProps> = ({ analysis }) => {
+  const {
+    totalWords = 0,
+    totalCharacters = 0,
+    totalParagraphs = 0,
+    totalSentences = 0,
+    uniqueWords = 0,
+    similarity_score = 0,
+    matches = [],
+    matchesDistribution = {},
+  } = analysis;
+
+  const averageSentenceLength = totalSentences ? totalWords / totalSentences : 0;
+
+  const readabilityScore = Math.max(0, Math.min(100, 100 - similarity_score));
+  const uniquePercentage = totalWords ? (uniqueWords / totalWords) * 100 : 0;
+
+  const getProgressColor = (value: number) => {
+    if (value > 70) return 'success.main';
+    if (value > 40) return 'warning.main';
+    return 'error.main';
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
+          <Assessment /> Statistiques du document
+        </Typography>
+
+        <Grid container spacing={3}>
+          {/* Métriques de base */}
+          {[
+            { label: 'Mots', value: totalWords, color: 'primary' },
+            { label: 'Caractères', value: totalCharacters, color: 'secondary' },
+            { label: 'Paragraphes', value: totalParagraphs, color: 'success' },
+            { label: 'Phrases', value: totalSentences, color: 'warning' },
+          ].map(({ label, value, color }) => (
+            <Grid size={{ xs: 6, sm: 3 }} key={label}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4" color={color} fontWeight="bold">
+                  {value.toLocaleString()}
                 </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {label}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
 
-                <Grid container spacing={3}>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.neutral', borderRadius: 2 }}>
-                            <Typography variant="h3" color="primary.main">
-                                {totalMatches}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Correspondances trouvées
-                            </Typography>
-                        </Box>
-                    </Grid>
+          {/* Score de lisibilité */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <Timeline fontSize="small" /> Score de lisibilité
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ flex: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={readabilityScore}
+                    sx={{
+                      height: 10,
+                      borderRadius: 5,
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: getProgressColor(readabilityScore),
+                      },
+                    }}
+                  />
+                </Box>
+                <Typography variant="body1" fontWeight="bold">
+                  {Math.round(readabilityScore)}%
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
 
-                    <Grid size={{ xs: 12, md: 8 }}>
-                        <Stack spacing={3}>
-                            <Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                    <Typography variant="body2">{typeof avgSimilarity === 'number' && !isNaN(avgSimilarity) ? avgSimilarity.toFixed(1) : '0.0'}%</Typography>
-                                </Box>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={typeof avgSimilarity === 'number' && !isNaN(avgSimilarity) ? avgSimilarity : 0}
-                                    color={avgSimilarity > 50 ? "warning" : "success"}
-                                    sx={{ height: 8, borderRadius: 4 }}
-                                />
-                            </Box>
+          {/* Unicité du vocabulaire */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <PieChart fontSize="small" /> Unicité du vocabulaire
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ flex: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={uniquePercentage}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                </Box>
+                <Typography variant="body1" fontWeight="bold">
+                  {uniquePercentage.toFixed(1)}%
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
 
-                            <Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Pic de Similarité</Typography>
-                                    <Typography variant="body2" color="error.main">{typeof highestSimilarity === 'number' && !isNaN(highestSimilarity) ? highestSimilarity.toFixed(1) : '0.0'}%</Typography>
-                                </Box>
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={typeof highestSimilarity === 'number' && !isNaN(highestSimilarity) ? highestSimilarity : 0}
-                                    color="error"
-                                    sx={{ height: 8, borderRadius: 4 }}
-                                />
-                            </Box>
-
-                            {/* Stats Textuelles (Nouveau) */}
-                            {(wordCount || 0) > 0 && (
-                                <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed', borderColor: 'divider' }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="caption" color="text.secondary">Mots</Typography>
-                                        <Typography variant="caption" fontWeight="bold">{wordCount}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="caption" color="text.secondary">Lisibilité</Typography>
-                                        <Typography variant="caption" fontWeight="bold">{readabilityScore}/100</Typography>
-                                    </Box>
-                                </Box>
-                            )}
-                        </Stack>
-                    </Grid>
-                </Grid>
-            </CardContent>
-        </Card >
-    );
+          {/* Distribution des correspondances */}
+          {Object.keys(matchesDistribution).length > 0 && (
+            <Grid size={{ xs: 12 }}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <BarChart fontSize="small" /> Distribution par type de source
+              </Typography>
+              <Grid container spacing={1}>
+                {Object.entries(matchesDistribution).map(([type, count]) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={type}>
+                    <Tooltip title={`${count} correspondance(s) de type ${type}`}>
+                      <Box sx={{ p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                          {type}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="bold">
+                          {count} ({matches.length ? ((count / matches.length) * 100).toFixed(1) : 0}%)
+                        </Typography>
+                      </Box>
+                    </Tooltip>
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          )}
+        </Grid>
+      </CardContent>
+    </Card>
+  );
 };

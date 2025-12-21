@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DashboardStats } from '../types/dashboard';
+import type { DashboardStats } from '../types/dashboard';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 

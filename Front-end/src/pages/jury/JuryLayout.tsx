@@ -15,6 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ArticleIcon from '@mui/icons-material/Article';
 import { useTheme } from '@mui/material/styles';
 import { varAlpha } from 'minimal-shared/utils';
 
@@ -36,6 +37,7 @@ export default function JuryLayout() {
   const navItems = [
     { title: 'Dashboard', path: '/jury/dashboard', icon: <DashboardIcon /> },
     { title: 'Rapports Assignés', path: '/jury/assigned-reports', icon: <AssignmentIcon /> },
+    { title: 'Plagiat', path: '/jury/plagiat', icon: <ArticleIcon /> },
   ];
 
   const renderContent = (

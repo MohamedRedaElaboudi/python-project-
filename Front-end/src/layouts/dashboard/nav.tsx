@@ -13,7 +13,6 @@ import { usePathname } from 'src/routes';
 
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 
-import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
 
 

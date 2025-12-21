@@ -1,6 +1,6 @@
 // src/routes/router.tsx
 
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { useRoutes } from 'react-router-dom';
 
 // Pages

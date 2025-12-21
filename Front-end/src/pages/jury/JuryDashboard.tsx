@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Avatar from '@mui/material/Avatar';
 import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 
 import LinearProgress from '@mui/material/LinearProgress';
-import { useTheme } from '@mui/material/styles';
-import { PlagiarismTable } from '../../components/plagiat/PlagiarismTable';
+
 
 // KPI Card Component
 function KpiCard({ title, value, color = 'primary' }: { title: string, value: string | number, color?: string }) {
@@ -87,21 +84,21 @@ export default function JuryDashboard() {
 
             <Grid container spacing={3}>
                 {/* Global KPIs */}
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <KpiCard title="Rapports Assignés" value={kpis.total_assigned} color="info" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <KpiCard title="En Attente" value={kpis.pending} color="warning" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <KpiCard title="Évalués" value={kpis.evaluated} color="success" />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <KpiCard title="Moyenne Notes" value={kpis.avg_grade} color="secondary" />
                 </Grid>
 
                 {/* Upcoming Soutenances */}
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Card sx={{ p: 3, height: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 3 }}>
                             Prochaines Soutenances
@@ -119,7 +116,7 @@ export default function JuryDashboard() {
                 </Grid>
 
                 {/* Info / Quick Actions */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{ p: 3, height: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 3 }}>
                             Information
@@ -133,10 +130,7 @@ export default function JuryDashboard() {
                     </Card>
                 </Grid>
 
-                {/* Plagiarism Table (All Students) */}
-                <Grid xs={12}>
-                    <PlagiarismTable />
-                </Grid>
+
             </Grid>
         </Container >
     );

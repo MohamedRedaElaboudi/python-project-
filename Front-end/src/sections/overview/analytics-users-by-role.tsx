@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import { Chart } from 'src/components/chart';
 import { useTheme } from '@mui/material/styles';
-import { UserByRole } from 'src/types/dashboard';
+import type { UserByRole } from 'src/types/dashboard';
 
 interface AnalyticsUsersByRoleProps {
   title?: string;

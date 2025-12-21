@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router';
 
 import { lazy, Suspense } from 'react';
-import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
@@ -27,6 +27,7 @@ export const UtilisateursPage = lazy(() => import('src/pages/UtilisateursPage'))
 
 // Jury
 import JuryGuard from 'src/components/JuryGuard';
+
 export const JuryLayout = lazy(() => import('src/pages/jury/JuryLayout'));
 export const JuryDashboardPage = lazy(() => import('src/pages/jury/JuryDashboard'));
 export const MyReportsPage = lazy(() => import('src/pages/jury/MyReports'));

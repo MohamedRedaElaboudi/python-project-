@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  Card,
-  CardContent,
-  Typography,
   Box,
-  LinearProgress,
+  Card,
   Chip,
   Tooltip,
+  Typography,
+  CardContent,
+  LinearProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';

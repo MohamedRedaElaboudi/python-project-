@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
+  Button,
+  Divider,
   TextField,
   Typography,
-  Button,
   InputAdornment,
-  Divider,
 } from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
@@ -36,7 +36,7 @@ export default function Register() {
       // ✅ REDIRECTION DIRECTE VERS LOGIN
       nav("/login");
     } catch {
-      alert("Erreur lors de l'inscription");
+      alert("Erreur lors de l&apos;inscription");
     }
   };
 

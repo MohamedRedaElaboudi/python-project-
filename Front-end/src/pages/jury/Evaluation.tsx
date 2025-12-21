@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
@@ -27,12 +27,9 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import PdfViewer from 'src/components/PdfViewer';
 import { AuditResult } from 'src/sections/audit/audit-result';
-import { AnalysisResult } from 'src/api/audit-service';
+import type { AnalysisResult } from 'src/api/audit-service';
 
-// Plagiat Imports
-import { PlagiatAnalysisResult } from 'src/components/plagiat';
-import { PlagiatResult } from 'src/components/plagiat/PlagiatResult';
-import { plagiatService } from 'src/api/plagiat-service';
+
 
 export default function EvaluationPage() {
     const { rapportId } = useParams();
@@ -49,10 +46,7 @@ export default function EvaluationPage() {
     const [auditLoading, setAuditLoading] = useState(false);
     const [auditResult, setAuditResult] = useState<AnalysisResult | null>(null);
 
-    // Plagiat State
-    const [plagiatOpen, setPlagiatOpen] = useState(false);
-    const [plagiatLoading, setPlagiatLoading] = useState(false);
-    const [plagiatResult, setPlagiatResult] = useState<PlagiatAnalysisResult | null>(null);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -71,15 +65,7 @@ export default function EvaluationPage() {
         };
         fetchData();
 
-        // Fetch existing plagiarism result
-        const fetchPlagiat = async () => {
-            if (!rapportId) return;
-            const result = await plagiatService.getAnalysis(rapportId);
-            if (result && result.analysis) {
-                setPlagiatResult(result.analysis);
-            }
-        };
-        fetchPlagiat();
+
 
     }, [rapportId]);
 
@@ -125,7 +111,7 @@ export default function EvaluationPage() {
                     score: c.score,
                     comment: c.comment
                 })),
-                submit: submit
+                submit
             };
 
             await axios.post('http://localhost:5000/api/jury/evaluation', payload, {
@@ -160,42 +146,20 @@ export default function EvaluationPage() {
             setAuditResult(response.data);
         } catch (e) {
             console.error(e);
-            alert("Erreur lors de l'audit.");
+            alert("Erreur lors de l&apos;audit.");
             setAuditOpen(false);
         } finally {
             setAuditLoading(false);
         }
     };
 
-    const handlePlagiat = async () => {
-        const rId = data?.rapport_id || rapportId;
-        if (!rId) return;
 
-        setPlagiatOpen(true);
-        if (plagiatResult) return;
-
-        setPlagiatLoading(true);
-        try {
-            const response = await plagiatService.analyzeReport(rId);
-            if (response && response.analysis) {
-                setPlagiatResult(response.analysis);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Erreur lors de l'analyse plagiat.");
-            setPlagiatOpen(false);
-        } finally {
-            setPlagiatLoading(false);
-        }
-    };
 
     const handleCloseAudit = () => {
         setAuditOpen(false);
     };
 
-    const handleClosePlagiat = () => {
-        setPlagiatOpen(false);
-    };
+
 
     if (loading) return <LinearProgress />;
     if (!data) return <Container><Alert severity="error">{error}</Alert></Container>;
@@ -205,16 +169,14 @@ export default function EvaluationPage() {
     return (
         <Grid container sx={{ height: 'calc(100vh - 64px)' }}>
             {/* Left: PDF Viewer */}
-            <Grid xs={12} md={6} sx={{ borderRight: '1px solid #ddd', height: '100%' }}>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ borderRight: '1px solid #ddd', height: '100%' }}>
                 <Box sx={{ p: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
                         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/jury/assigned-reports')}>
                             Retour
                         </Button>
                         <Box>
-                            <Button variant="outlined" color="secondary" onClick={handlePlagiat} sx={{ mr: 1 }}>
-                                Analyse Plagiat
-                            </Button>
+
                             <Button variant="outlined" color="primary" onClick={handleAudit}>
                                 Lancer l'Audit IA
                             </Button>
@@ -243,30 +205,10 @@ export default function EvaluationPage() {
                 </DialogActions>
             </Dialog>
 
-            {/* Plagiat Modal */}
-            <Dialog open={plagiatOpen} onClose={handleClosePlagiat} maxWidth="md" fullWidth>
-                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    Détection de Plagiat
-                    <IconButton onClick={handleClosePlagiat}>
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent dividers>
-                    {plagiatLoading && (
-                        <Box sx={{ width: '100%', textAlign: 'center', py: 5 }}>
-                            <LinearProgress sx={{ mb: 2 }} />
-                            <Typography>Analyse en cours...</Typography>
-                        </Box>
-                    )}
-                    {plagiatResult && <PlagiatResult result={plagiatResult} />}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClosePlagiat}>Fermer</Button>
-                </DialogActions>
-            </Dialog>
+
 
             {/* Right: Evaluation Form */}
-            <Grid xs={12} md={6} sx={{ height: '100%', overflowY: 'auto', p: 3, bgcolor: 'background.paper' }}>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', overflowY: 'auto', p: 3, bgcolor: 'background.paper' }}>
                 <Typography variant="h5" gutterBottom>
                     Évaluation
                 </Typography>

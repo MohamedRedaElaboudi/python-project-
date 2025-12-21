@@ -111,7 +111,7 @@ class Rapport(db.Model):
     __tablename__ = "rapports"
 
     id = db.Column(db.Integer, primary_key=True)
-    auteur_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    auteur_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
     titre = db.Column(db.String(255), nullable=True)
     filename = db.Column(db.String(200), nullable=False)
     storage_path = db.Column(db.String(300), nullable=False)
@@ -171,7 +171,7 @@ class Student(db.Model):
     __tablename__ = "students"
 
     user_id = db.Column(
-        db.Integer,
+        db.BigInteger,
         db.ForeignKey("users.id", ondelete="CASCADE"),
         primary_key=True
     )
@@ -194,17 +194,22 @@ class Student(db.Model):
 class Evaluation(db.Model):
     __tablename__ = 'evaluations'
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False)
-    jury_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=False)
+    soutenance_id = db.Column(db.BigInteger, db.ForeignKey('soutenances.id', ondelete='CASCADE'), nullable=False)
+    jury_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     statut = db.Column(db.String(20), default='pending') # pending, completed
     final_note = db.Column(db.Float, nullable=True)
     global_comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    rapport = db.relationship('Rapport', backref='evaluations')
+    soutenance = db.relationship('Soutenance', backref='evaluations')
     jury = db.relationship('User', backref='evaluations_given')
     grades = db.relationship('EvaluationGrade', back_populates='evaluation', cascade='all, delete-orphan')
+    
+    # Helper property to get the rapport through soutenance
+    @property
+    def rapport(self):
+        return self.soutenance.rapport if self.soutenance else None
 
 class EvaluationCriterion(db.Model):
     __tablename__ = 'evaluation_criteria'
@@ -254,11 +259,14 @@ class PlagiatAnalysis(db.Model):
     chunks_analyzed = db.Column(db.Integer, default=0)
     chunks_with_matches = db.Column(db.Integer, default=0)
     
+
     # Statistiques du texte
     word_count = db.Column(db.Integer, default=0)
     unique_words = db.Column(db.Integer, default=0)
     readability_score = db.Column(db.Float, default=0.0)
     detection_time = db.Column(db.Float, default=0.0)
+    character_count = db.Column(db.Integer, default=0)
+    paragraph_count = db.Column(db.Integer, default=0)
 
     # Relations
     matches = db.relationship('PlagiatMatch', backref='analysis', cascade='all, delete-orphan')

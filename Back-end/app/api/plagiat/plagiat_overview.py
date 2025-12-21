@@ -14,7 +14,7 @@ def risk_fr(risk):
     return {
         "low": "Faible",
         "medium": "Moyen",
-        "high": "├ëlev├®",
+        "high": "Élevé",
         "none": "Faible"
     }.get(str(risk).lower(), "Inconnu")
 
@@ -24,6 +24,10 @@ def plagiat_overview():
     base_completed_query = PlagiatAnalysis.query.filter(PlagiatAnalysis.status == "completed")
 
     total_analyses = base_completed_query.count()
+    
+    # Count total reports
+    total_rapports = Rapport.query.count()
+    rapports_non_analyses = total_rapports - total_analyses
 
     avg_originality = db.session.query(
         func.avg(PlagiatAnalysis.originality_score)
@@ -71,7 +75,9 @@ def plagiat_overview():
 
     return jsonify({
         "stats": {
+            "total_rapports": total_rapports,
             "rapports_analyses": total_analyses,
+            "rapports_non_analyses": rapports_non_analyses,
             "originalite_moyenne": round(avg_originality, 2),
             "risques_detectes": risks_detected,
             "analyses_aujourdhui": today_analyses,

@@ -5,9 +5,6 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import SchoolIcon from '@mui/icons-material/School';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 
 interface SoutenancesStatsProps {
   title: string;

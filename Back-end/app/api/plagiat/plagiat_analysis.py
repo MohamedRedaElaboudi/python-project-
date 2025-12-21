@@ -23,14 +23,17 @@ except ImportError:
 
 try:
     from .plagiarism_detector import PlagiarismDetector
+
     detector = PlagiarismDetector()
 except ImportError as e:
     detector = None
 
-from . import plagiat_bp
+plagiat_analysis_bp = Blueprint("plagiat_analysis", __name__, url_prefix="/api/plagiat")
+
 
 def extract_text_from_file(filepath: str) -> str:
     global root_dir
+
     if os.path.isabs(filepath) or ':' in filepath:
         match = re.search(r'(uploads[/\\][\s\S]+)', filepath, re.IGNORECASE)
         if match:
@@ -71,6 +74,7 @@ def extract_text_from_file(filepath: str) -> str:
         import traceback
         return ""
 
+
 def count_syllables(word: str) -> int:
     word = word.lower()
     vowels = "aeiouyàâéèêëîïôùûüÿ"
@@ -82,6 +86,7 @@ def count_syllables(word: str) -> int:
             count += 1
         prev_char_vowel = is_vowel
     return max(1, count)
+
 
 def calculate_text_stats(text: str) -> Dict:
     words = text.split()
@@ -103,6 +108,7 @@ def calculate_text_stats(text: str) -> Dict:
         "unique_words": unique_words,
         "readability_score": round(readability, 2)
     }
+
 
 def chunk_text_intelligently(text: str, max_chunks: int = 25) -> List[str]:
     chunks = []
@@ -144,6 +150,7 @@ def chunk_text_intelligently(text: str, max_chunks: int = 25) -> List[str]:
 
     return chunks[:max_chunks]
 
+
 async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis = None) -> Dict:
     if detector is None:
         raise RuntimeError("Le détecteur de plagiat n'a pas été initialisé.")
@@ -180,6 +187,7 @@ async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis
                     tasks.append(detector.check_web_source(chunk, session, i))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
+
             matches_found_count = 0
             matches_saved_count = 0
 
@@ -236,7 +244,8 @@ async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis
             except Exception as e:
                 db.session.rollback()
 
-        ai_result = detector.calculate_ai_score(text_content) if detector.has_ai_detector else {"ai_score": 0, "risk": "none"}
+        ai_result = detector.calculate_ai_score(text_content) if detector.has_ai_detector else {"ai_score": 0,
+                                                                                                "risk": "none"}
         ai_score = ai_result.get('ai_score', 0)
 
         if all_matches_data:
@@ -257,6 +266,8 @@ async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis
         else:
             risk = "none"
 
+        text_stats = calculate_text_stats(text_content)
+
         return {
             "student": student.name,
             "rapport": rapport.filename,
@@ -268,7 +279,13 @@ async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis
             "chunks_analyzed": len(chunks),
             "chunks_with_matches": matches_found_count,
             "avg_similarity": avg_similarity,
-            "matches_saved": matches_saved_count
+            "matches_saved": matches_saved_count,
+            # Stats textuelles
+            "word_count": text_stats.get("total_words", 0),
+            "unique_words": text_stats.get("unique_words", 0),
+            "character_count": text_stats.get("total_characters", 0),
+            "paragraph_count": text_stats.get("total_paragraphs", 0),
+            "readability_score": text_stats.get("readability_score", 0)
         }
 
     except Exception as e:
@@ -286,7 +303,8 @@ async def analyze_single_rapport(rapport, student, analysis_obj: PlagiatAnalysis
             "chunks_with_matches": 0
         }
 
-@plagiat_bp.route("/analyze_all", methods=["POST"])
+
+@plagiat_analysis_bp.route("/analyze_all", methods=["POST"])
 def analyze_all_reports():
     try:
         rapports = Rapport.query.all()
@@ -321,6 +339,13 @@ def analyze_all_reports():
             analysis.ai_score = res.get("ai_score", 0)
             analysis.chunks_analyzed = res.get("chunks_analyzed", 0)
             analysis.chunks_with_matches = res.get("chunks_with_matches", 0)
+            # Save detailed stats
+            analysis.word_count = res.get("word_count", 0)
+            analysis.unique_words = res.get("unique_words", 0)
+            analysis.character_count = res.get("character_count", 0)
+            analysis.paragraph_count = res.get("paragraph_count", 0)
+            analysis.readability_score = res.get("readability_score", 0)
+            analysis.chunks_with_matches = res.get("chunks_with_matches", 0)
 
         db.session.commit()
 
@@ -347,7 +372,8 @@ def analyze_all_reports():
         import traceback
         return jsonify({"error": str(e), "status": "error"}), 500
 
-@plagiat_bp.route("/analyze/<int:rapport_id>", methods=["POST"])
+
+@plagiat_analysis_bp.route("/analyze/<int:rapport_id>", methods=["POST"])
 def analyze_single(rapport_id):
     try:
         rapport = Rapport.query.get_or_404(rapport_id)
@@ -403,12 +429,12 @@ def analyze_single(rapport_id):
         analysis.ai_score = result.get("ai_score", 0)
         analysis.chunks_analyzed = result.get("chunks_analyzed", 0)
         analysis.chunks_with_matches = result.get("chunks_with_matches", 0)
-        
-        # Sauvegarde des stats textuelles
+        # Save detailed stats
         analysis.word_count = result.get("word_count", 0)
         analysis.unique_words = result.get("unique_words", 0)
-        analysis.readability_score = result.get("readability_score", 0.0)
-        analysis.detection_time = result.get("detection_time", 0.0)
+        analysis.character_count = result.get("character_count", 0)
+        analysis.paragraph_count = result.get("paragraph_count", 0)
+        analysis.readability_score = result.get("readability_score", 0)
 
         saved_matches = PlagiatMatch.query.filter_by(analysis_id=analysis.id).count()
 
@@ -428,35 +454,16 @@ def analyze_single(rapport_id):
         import traceback
         return jsonify({"error": str(e), "status": "error"}), 500
 
-@plagiat_bp.route("/result/<int:rapport_id>", methods=["GET"])
-def get_analysis_by_rapport(rapport_id):
-    try:
-        # Trouver l'analyse associée au rapport
-        analysis = PlagiatAnalysis.query.filter_by(rapport_id=rapport_id).order_by(PlagiatAnalysis.created_at.desc()).first()
-        
-        if not analysis:
-            return jsonify({"error": "Aucune analyse trouvée pour ce rapport", "status": "not_found"}), 404
 
-        # Réutiliser la logique de récupération
-        return get_analysis(analysis.id)
-
-    except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'status': 'error'
-        }), 500
-
-@plagiat_bp.route("/analysis/<int:analysis_id>", methods=["GET"])
+@plagiat_analysis_bp.route("/analysis/<int:analysis_id>", methods=["GET"])
 def get_analysis(analysis_id):
     try:
         analysis = PlagiatAnalysis.query.get_or_404(analysis_id)
         rapport = Rapport.query.get(analysis.rapport_id)
-
         if not rapport:
             return jsonify({"error": "Rapport non trouvé", "status": "error"}), 404
 
         student = User.query.get(rapport.auteur_id)
-
         if not student:
             return jsonify({"error": "Étudiant non trouvé", "status": "error"}), 404
 
@@ -512,7 +519,8 @@ def get_analysis(analysis_id):
             'matches_saved': len(sources),
             'status': analysis.status or 'completed',
             'analyzed_at': analysis.analyzed_at.isoformat() if analysis.analyzed_at else None,
-            'created_at': analysis.created_at.isoformat() if hasattr(analysis, 'created_at') and analysis.created_at else None
+            'created_at': analysis.created_at.isoformat() if hasattr(analysis,
+                                                                     'created_at') and analysis.created_at else None
         }
 
         return jsonify(response)
@@ -524,7 +532,8 @@ def get_analysis(analysis_id):
             'status': 'error'
         }), 500
 
-@plagiat_bp.route("/analyses", methods=["GET"])
+
+@plagiat_analysis_bp.route("/analyses", methods=["GET"])
 def get_all_analyses():
     try:
         analyses = PlagiatAnalysis.query.order_by(PlagiatAnalysis.analyzed_at.desc()).all()
@@ -533,6 +542,7 @@ def get_all_analyses():
         for analysis in analyses:
             rapport = Rapport.query.get(analysis.rapport_id)
             student = User.query.get(rapport.auteur_id) if rapport else None
+
             matches_count = PlagiatMatch.query.filter_by(analysis_id=analysis.id).count()
 
             result = {
@@ -565,7 +575,8 @@ def get_all_analyses():
             'status': 'error'
         }), 500
 
-@plagiat_bp.route("/pending_analyses", methods=["GET"])
+
+@plagiat_analysis_bp.route("/pending_analyses", methods=["GET"])
 def get_pending_analyses():
     try:
         all_rapports = Rapport.query.all()
@@ -573,6 +584,7 @@ def get_pending_analyses():
 
         for rapport in all_rapports:
             analysis = PlagiatAnalysis.query.filter_by(rapport_id=rapport.id).first()
+
             if not analysis:
                 student = User.query.get(rapport.auteur_id)
                 if student:
@@ -597,7 +609,8 @@ def get_pending_analyses():
             'status': 'error'
         }), 500
 
-@plagiat_bp.route("/analyze_selected", methods=["POST"])
+
+@plagiat_analysis_bp.route("/analyze_selected", methods=["POST"])
 def analyze_selected_reports():
     try:
         data = request.get_json()
@@ -647,6 +660,7 @@ def analyze_selected_reports():
             analysis.ai_score = res.get("ai_score", 0)
             analysis.chunks_analyzed = res.get("chunks_analyzed", 0)
             analysis.chunks_with_matches = res.get("chunks_with_matches", 0)
+
             processed_count += 1
 
         db.session.commit()
@@ -667,7 +681,8 @@ def analyze_selected_reports():
         traceback.print_exc()
         return jsonify({"error": str(e), "status": "error"}), 500
 
-@plagiat_bp.route("/analyze_all_pending", methods=["POST"])
+
+@plagiat_analysis_bp.route("/analyze_all_pending", methods=["POST"])
 def analyze_all_pending_reports():
     try:
         all_rapports = Rapport.query.all()
@@ -720,6 +735,13 @@ def analyze_all_pending_reports():
             analysis.ai_score = res.get("ai_score", 0)
             analysis.chunks_analyzed = res.get("chunks_analyzed", 0)
             analysis.chunks_with_matches = res.get("chunks_with_matches", 0)
+            # Save detailed text stats
+            analysis.word_count = res.get("word_count", 0)
+            analysis.unique_words = res.get("unique_words", 0)
+            analysis.character_count = res.get("character_count", 0)
+            analysis.paragraph_count = res.get("paragraph_count", 0)
+            analysis.readability_score = res.get("readability_score", 0)
+
             processed_count += 1
 
         db.session.commit()
@@ -740,12 +762,13 @@ def analyze_all_pending_reports():
         traceback.print_exc()
         return jsonify({"error": str(e), "status": "error"}), 500
 
-@plagiat_bp.route("/overview", methods=["GET"])
+
+@plagiat_analysis_bp.route("/overview", methods=["GET"])
 def get_overview():
     try:
         total_analyses = PlagiatAnalysis.query.count()
-        analyses = PlagiatAnalysis.query.all()
 
+        analyses = PlagiatAnalysis.query.all()
         if analyses:
             originalite_moyenne = round(sum(a.originality_score or 0 for a in analyses) / len(analyses), 1)
         else:
@@ -801,7 +824,8 @@ def get_overview():
             'status': 'error'
         }), 500
 
-@plagiat_bp.route("/stats", methods=["GET"])
+
+@plagiat_analysis_bp.route("/stats", methods=["GET"])
 def get_detector_stats():
     if detector:
         return jsonify({
@@ -815,7 +839,8 @@ def get_detector_stats():
         "status": "inactive (detector initialization failed)"
     })
 
-@plagiat_bp.route("/test_match_save", methods=["GET"])
+
+@plagiat_analysis_bp.route("/test_match_save", methods=["GET"])
 def test_match_save():
     try:
         test_analysis = PlagiatAnalysis(

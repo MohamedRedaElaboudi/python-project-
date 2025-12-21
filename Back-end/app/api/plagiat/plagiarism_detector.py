@@ -10,13 +10,13 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 class PlagiarismDetector:
     def __init__(self):
-        print("­ƒöº Initialisation du D├®tecteur de Plagiat")
+        print("🔧 Initialisation du Détecteur de Plagiat")
 
         try:
             self.model = SentenceTransformer("all-MiniLM-L6-v2")
-            print("Ô£à SentenceTransformer charg├®")
+            print("✅ SentenceTransformer chargé")
         except Exception as e:
-            print(f"ÔØî Erreur mod├¿le s├®mantique : {e}")
+            print(f"❌ Erreur modèle sémantique : {e}")
             self.model = None
 
         self.vectorizer = TfidfVectorizer(
@@ -29,10 +29,10 @@ class PlagiarismDetector:
             self.ai_tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
             self.ai_model = AutoModelForCausalLM.from_pretrained("distilgpt2")
             self.has_ai_detector = True
-            print("Ô£à D├®tecteur IA charg├®")
+            print("✅ Détecteur IA chargé")
         except Exception:
             self.has_ai_detector = False
-            print("ÔÜá´©Å D├®tection IA d├®sactiv├®e")
+            print("⚠️ Détection IA désactivée")
 
         self.stats = {
             "semantic_checks": 0,
@@ -41,11 +41,11 @@ class PlagiarismDetector:
             "errors": 0
         }
 
-        print("Ô£à D├®tecteur pr├¬t")
+        print("✅ Détecteur prêt")
 
     def preprocess(self, text: str) -> str:
         text = text.lower()
-        text = re.sub(r"[^\w\s├á-├┐]", " ", text)
+        text = re.sub(r"[^\w\sà-ÿ]", " ", text)
         text = re.sub(r"\s+", " ", text)
         return text.strip()
 

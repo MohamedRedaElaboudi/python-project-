@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import {
-  Avatar,
   Box,
-  Tooltip,
   Menu,
-  MenuItem,
+  Avatar,
+  Tooltip,
   Divider,
+  MenuItem,
   Typography,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';

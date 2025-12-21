@@ -1,11 +1,11 @@
-import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Outlet , useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 type JuryGuardProps = {
     children?: React.ReactNode;
 };
 
-import { Outlet } from 'react-router-dom';
+
 
 export default function JuryGuard({ children }: JuryGuardProps) {
     const navigate = useNavigate();

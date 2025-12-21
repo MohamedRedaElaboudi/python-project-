@@ -1,14 +1,16 @@
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
-import Chip from '@mui/material/Chip';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import CardContent from '@mui/material/CardContent';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import {
+  Card,
+  Grid,
+  Chip,
+  List,
+  Divider,
+  ListItem,
+  CardHeader,
+  Typography,
+  CardContent,
+  ListItemText,
+  ListItemIcon,
+} from '@mui/material';
 
 import RuleIcon from '@mui/icons-material/Rule';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -17,7 +19,7 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-import { AnalysisResult } from '../../api/audit-service';
+import type { AnalysisResult } from '../../api/audit-service';
 
 type Props = {
   result: AnalysisResult;
@@ -27,7 +29,7 @@ export function AuditResult({ result }: Props) {
   return (
     <Grid container spacing={3}>
       {/* 1. Résumé */}
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card sx={{ boxShadow: 3 }}>
           <CardHeader
             title="Résumé du rapport"
@@ -43,7 +45,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 2. Audit de la FORME */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ border: '1px solid', borderColor: 'error.light', height: '100%' }}>
           <CardHeader
             title="Audit de la FORME"
@@ -74,7 +76,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 3. Audit du FOND */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ border: '1px solid', borderColor: 'warning.light', height: '100%' }}>
           <CardHeader
             title="Audit du FOND (Contenu)"
@@ -111,7 +113,7 @@ export function AuditResult({ result }: Props) {
       </Grid>
 
       {/* 4. Avis Global */}
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card sx={{ bgcolor: 'grey.800', color: 'common.white' }}>
           <CardHeader
             title="Avis global du Jury"
@@ -119,7 +121,7 @@ export function AuditResult({ result }: Props) {
           />
           <CardContent>
             <Typography variant="h6" sx={{ fontStyle: 'italic', opacity: 0.9 }}>
-              "{result.content_validation.general_comment}"
+              &quot;{result.content_validation.general_comment}&quot;
             </Typography>
           </CardContent>
         </Card>

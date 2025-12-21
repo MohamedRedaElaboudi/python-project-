@@ -107,7 +107,7 @@ def get_assigned_reports(user_id):
     ).join(
         Jury, Jury.soutenance_id == Soutenance.id
     ).outerjoin(
-        Evaluation, (Evaluation.rapport_id == Rapport.id) & (Evaluation.jury_id == user_id)
+        Evaluation, (Evaluation.soutenance_id == Soutenance.id) & (Evaluation.jury_id == user_id)
     ).filter(
         Jury.teacher_id == user_id
     ).order_by(Soutenance.date_soutenance.desc()).all()
@@ -156,24 +156,33 @@ def get_evaluation_details(user_id, rapport_id):
     Get detailed evaluation data including criteria grades.
     If evaluation doesn't exist, create a pending one.
     """
+    # First, find the soutenance for this rapport
+    soutenance = db.session.query(Soutenance).filter(
+        Soutenance.rapport_id == rapport_id
+    ).first()
+    
+    if not soutenance:
+        return None, "No soutenance found for this report"
+    
+    # Check if this jury is assigned to this soutenance
+    is_assigned = db.session.query(Jury).filter(
+        Jury.teacher_id == user_id,
+        Jury.soutenance_id == soutenance.id
+    ).first() is not None
+    
+    if not is_assigned:
+        return None, "Report not assigned to this user"
+    
+    # Get or create evaluation
     evaluation = Evaluation.query.filter_by(
-        rapport_id=rapport_id,
+        soutenance_id=soutenance.id,
         jury_id=user_id
     ).first()
 
     if not evaluation:
-        # Verify assignment first
-        is_assigned = db.session.query(Jury).join(Soutenance).filter(
-            Jury.teacher_id == user_id,
-            Soutenance.rapport_id == rapport_id
-        ).first() is not None
-
-        if not is_assigned:
-            return None, "Report not assigned to this user"
-
         # Create pending evaluation
         evaluation = Evaluation(
-            rapport_id=rapport_id,
+            soutenance_id=soutenance.id,
             jury_id=user_id,
             statut='pending'
         )
@@ -198,20 +207,13 @@ def get_evaluation_details(user_id, rapport_id):
             "comment": grade.comment if grade else ""
         })
     
-    # Determine soutenance_id safely
-    soutenance = None
-    if evaluation.rapport:
-        # Check if backref is list or scalar
-        rels = evaluation.rapport.soutenance
-        if isinstance(rels, list):
-             soutenance = rels[0] if rels else None
-        else:
-             soutenance = rels
+    # Get rapport_id through soutenance
+    rapport_id = evaluation.soutenance.rapport_id if evaluation.soutenance else None
 
     return {
         "id": evaluation.id,
-        "rapport_id": evaluation.rapport_id,
-        "soutenance_id": soutenance.id if soutenance else None,
+        "rapport_id": rapport_id,
+        "soutenance_id": evaluation.soutenance_id,
         "statut": evaluation.statut,
         "global_comment": evaluation.global_comment,
         "final_note": float(evaluation.final_note) if evaluation.final_note else None,

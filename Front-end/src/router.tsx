@@ -4,7 +4,7 @@ import StudentGuard from "./StudentGuard";
 
 // src/router.tsx
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, BrowserRouter } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { varAlpha } from 'minimal-shared/utils';
@@ -27,9 +27,13 @@ import JuryLayout from "./pages/jury/JuryLayout";
 import JuryDashboard from "./pages/jury/JuryDashboard";
 import MyReports from "./pages/jury/MyReports";
 import EvaluationPage from "./pages/jury/Evaluation";
+import { DashboardPlagiat } from "./pages/Plagiat/DashboardPlagiat";
+import { Plagiat } from "./pages/Plagiat/Plagiat";
+import { PlagiatAnalysis } from "./pages/Plagiat/PlagiatAnalysis";
 
 import { DashboardLayout } from 'src/layouts/dashboard';
 import { AuthLayout } from 'src/layouts/auth';
+import { PlagiatLayout } from "./PlagiatLayout";
 
 // =======================
 // Lazy loaded pages (admin)
@@ -113,8 +117,16 @@ export default function AppRouter() {
             <Route path="dashboard" element={<JuryDashboard />} />
             <Route path="assigned-reports" element={<MyReports />} />
             <Route path="evaluation/:rapportId" element={<EvaluationPage />} />
+            <Route path="plagiat" element={<DashboardPlagiat />} />
+            <Route path="plagiat/rapports/:id" element={<Plagiat />} />
+            <Route path="plagiat/rapports/:id/analysis" element={<PlagiatAnalysis />} />
             <Route index element={<Navigate to="/jury/dashboard" replace />} />
           </Route>
+
+          {/* ---------------- Plagiat routes ---------------- */}
+          <Route path="/plagiat" element={<PlagiatLayout><Plagiat /></PlagiatLayout>} />
+          <Route path="/plagiat/dashboard" element={<PlagiatLayout><DashboardPlagiat /></PlagiatLayout>} />
+          <Route path="/plagiat/analysis/:id" element={<PlagiatLayout><PlagiatAnalysis /></PlagiatLayout>} />
 
           {/* 404 */}
           <Route path="/404" element={<Page404 />} />

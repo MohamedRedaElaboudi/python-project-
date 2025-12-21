@@ -3,16 +3,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import LinearProgress from '@mui/material/LinearProgress';
 
 interface SallesStatsProps {
   title: string;
   stats: {
     total: number;
+    occupied: number;
   };
 }
 

@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 
 from .config import Config
 from .extensions import db
@@ -19,6 +20,20 @@ from .api.dashboard import dashboard_bp
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    import logging
+    from logging.handlers import RotatingFileHandler
+    
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/backend.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Backend startup')
 
 
     db.init_app(app)
@@ -45,6 +60,15 @@ def create_app():
     
     from .api.plagiat import plagiat_bp
     app.register_blueprint(plagiat_bp)
+
+    from .api.plagiat.plagiat_dashboard import plagiat_dashboard_bp
+    app.register_blueprint(plagiat_dashboard_bp)
+    
+    from .api.plagiat.plagiat_overview import plagiat_overview_bp
+    app.register_blueprint(plagiat_overview_bp)
+    
+    from .api.plagiat.plagiat_analysis import plagiat_analysis_bp
+    app.register_blueprint(plagiat_analysis_bp)
 
     app.register_blueprint(student_bp)
     app.register_blueprint(student_profile_bp)

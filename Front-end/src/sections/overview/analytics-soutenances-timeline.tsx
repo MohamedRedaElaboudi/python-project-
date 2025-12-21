@@ -5,7 +5,6 @@ import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
-import Typography from '@mui/material/Typography';
 
 interface AnalyticsSoutenancesTimelineProps {
   title: string;

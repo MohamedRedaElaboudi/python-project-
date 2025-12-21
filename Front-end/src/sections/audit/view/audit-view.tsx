@@ -10,7 +10,8 @@ import { DashboardContent } from 'src/layouts/dashboard';
 // Import des modules
 import { AuditUpload } from '../audit-upload';
 import { AuditResult } from '../audit-result';
-import { auditService, AnalysisResult } from '../../../api/audit-service'
+import type { AnalysisResult } from '../../../api/audit-service';
+import { auditService } from '../../../api/audit-service'
 
 export function AuditView() {
   const [file, setFile] = useState<File | null>(null);

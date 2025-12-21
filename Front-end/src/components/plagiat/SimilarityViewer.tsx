@@ -1,102 +1,90 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import Stack from "@mui/material/Stack";
-import Link from "@mui/material/Link";
-
+import { Box, Grid, Tooltip, Typography, IconButton } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
-import { PlagiatMatch } from "./index";
 
-// ----------------------------------------------------------------------
-
-type Props = {
-  match: PlagiatMatch;
+type Match = {
+  id: string;
+  text: string;
+  similarity?: number; // valeur en %
+  sourceUrl?: string;
 };
 
-export function SimilarityViewer({ match }: Props) {
-  if (!match) return null;
+type Props = {
+  matches: Match[];
+  onSourceClick?: (id: string) => void;
+};
+
+const SimilarityViewer: React.FC<Props> = ({ matches, onSourceClick }) => {
+  const summary = React.useMemo(() => {
+    const totalSimilarity = matches.reduce(
+      (sum, match) => sum + (match.similarity ?? 0),
+      0
+    );
+    const avgSimilarity =
+      matches.length > 0 ? totalSimilarity / matches.length : 0;
+    const maxSimilarity =
+      matches.length > 0
+        ? Math.max(...matches.map((m) => m.similarity ?? 0))
+        : 0;
+
+    return { avgSimilarity, maxSimilarity, totalMatches: matches.length };
+  }, [matches]);
 
   return (
-    <Card>
-      <CardHeader
-        title="Détails de la correspondance"
-        subheader={`Source: ${match.source || 'Inconnue'}`}
-      />
+    <Grid container spacing={3}>
+      {/* Résumé */}
+      <Grid size={{ xs: 12 }}>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Résumé
+        </Typography>
+        <Typography>Matches totaux: {summary.totalMatches}</Typography>
+        <Typography>
+          Similarité moyenne: {summary.avgSimilarity.toFixed(1)}%
+        </Typography>
+        <Typography>
+          Similarité maximale: {summary.maxSimilarity.toFixed(1)}%
+        </Typography>
+      </Grid>
 
-      <CardContent>
-        <Stack spacing={3}>
+      {/* Liste des matches */}
+      {matches.map((match) => (
+        <Grid key={match.id} size={{ xs: 12, md: 4 }}>
           <Box
             sx={{
               p: 2,
+              border: "1px solid",
+              borderColor: "divider",
               borderRadius: 1,
-              bgcolor: 'background.neutral',
-              border: (theme) => `solid 1px ${theme.palette.divider}`,
+              minHeight: 100,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
-              Texte du rapport :
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              {match.text}
             </Typography>
-            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-              "{match.content_snippet || match.text || '...'}"
-            </Typography>
-          </Box>
 
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 1,
-              bgcolor: 'error.lighter',
-              color: 'error.darker',
-              border: (theme) => `solid 1px ${theme.palette.error.light}`,
-            }}
-          >
-            <Typography variant="subtitle2" sx={{ mb: 1, color: 'error.dark' }}>
-              Texte source trouvé :
-            </Typography>
-            <Typography variant="body2">
-              "{match.matched_text || '...'}"
-            </Typography>
-          </Box>
-
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box
-                component="span"
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  mr: 1,
-                  bgcolor: (match.similarity ?? 0) > 70 ? 'error.main' : (match.similarity ?? 0) > 40 ? 'warning.main' : 'success.main'
-                }}
-              />
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                {match.similarity?.toFixed(1)}% de similarité
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {match.sourceUrl && (
+                <Tooltip title="Ouvrir la source">
+                  <IconButton
+                    size="small"
+                    onClick={() => onSourceClick?.(match.id)}
+                  >
+                    <OpenInNew fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Typography variant="caption" color="text.secondary">
+                Similarité: {(match.similarity ?? 0).toFixed(1)}%
               </Typography>
             </Box>
-
-            {match.source_url && (
-              <Tooltip title="Ouvrir la source originale">
-                <IconButton
-                  component={Link}
-                  href={match.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ color: 'primary.main' }}
-                >
-                  <OpenInNew />
-                </IconButton>
-              </Tooltip>
-            )}
-          </Stack>
-        </Stack>
-      </CardContent>
-    </Card>
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
   );
-}
+};
 
+export { SimilarityViewer };

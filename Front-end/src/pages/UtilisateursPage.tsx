@@ -1,5 +1,5 @@
 // UtilisateursPage.tsx - VERSION COMPLÈTE CORRIGÉE
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import "./UtilisateursPage.css";
 
 interface User {
