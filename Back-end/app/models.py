@@ -194,7 +194,8 @@ class Student(db.Model):
 class Evaluation(db.Model):
     __tablename__ = 'evaluations'
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    soutenance_id = db.Column(db.BigInteger, db.ForeignKey('soutenances.id', ondelete='CASCADE'), nullable=False)
+    soutenance_id = db.Column(db.BigInteger, db.ForeignKey('soutenances.id', ondelete='CASCADE'), nullable=True)
+    rapport_id = db.Column(db.Integer, db.ForeignKey('rapports.id'), nullable=False, default=0)
     jury_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     statut = db.Column(db.String(20), default='pending') # pending, completed
     final_note = db.Column(db.Float, nullable=True)
@@ -206,9 +207,11 @@ class Evaluation(db.Model):
     jury = db.relationship('User', backref='evaluations_given')
     grades = db.relationship('EvaluationGrade', back_populates='evaluation', cascade='all, delete-orphan')
     
-    # Helper property to get the rapport through soutenance
+    # Helper property to get the rapport through soutenance or direct link
     @property
     def rapport(self):
+        if self.rapport_id:
+            return Rapport.query.get(self.rapport_id)
         return self.soutenance.rapport if self.soutenance else None
 
 class EvaluationCriterion(db.Model):

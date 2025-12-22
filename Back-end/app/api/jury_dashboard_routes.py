@@ -1,18 +1,17 @@
 from flask import Blueprint, jsonify, request, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import jury_dashboard_service
-from app.models import EvaluationCriterion, db
+from app.models import EvaluationCriterion, db, Rapport, Soutenance
 
 jury_dashboard_bp = Blueprint('jury_dashboard_bp', __name__, url_prefix='/api/jury')
 
 from app.services.audit_service_impl import analyze_pdf
 from app.services import jury_dashboard_service
-from app.models import Soutenance
 import os
 
-@jury_dashboard_bp.route('/evaluation/<int:soutenance_id>/audit', methods=['GET'])
+@jury_dashboard_bp.route('/evaluation/<int:rapport_id>/audit', methods=['GET'])
 @jwt_required()
-def audit_report(soutenance_id):
+def audit_report(rapport_id):
     try:
         identity = get_jwt_identity()
         if isinstance(identity, dict):
@@ -20,15 +19,24 @@ def audit_report(soutenance_id):
         else:
             current_user_id = int(identity)
         
-        soutenance = Soutenance.query.get(soutenance_id)
+        # Get rapport first
+        rapport = Rapport.query.get(rapport_id)
+        if not rapport:
+            return jsonify({"message": "Rapport not found"}), 404
+        
+        # Find soutenance via student_id
+        soutenance = Soutenance.query.filter_by(student_id=rapport.auteur_id).first()
         if not soutenance:
-             return jsonify({"message": "Soutenance not found"}), 404
+             return jsonify({"message": "Soutenance not found for this student"}), 404
              
-        # Fix: Report path is in the Rapport model, not Student
-        if not soutenance.rapport or not soutenance.rapport.storage_path:
-            return jsonify({"message": "Rapport non disponible"}), 404
+        # Check if rapport file exists
+        if not rapport.storage_path:
+            return jsonify({"message": "Rapport file path not found"}), 404
             
-        file_path = os.path.join(os.getcwd(), soutenance.rapport.storage_path)
+        file_path = os.path.join(os.getcwd(), rapport.storage_path)
+        
+        if not os.path.exists(file_path):
+            return jsonify({"message": f"Rapport file not found: {file_path}"}), 404
         
         # Debug Logging
         with open("debug_audit.log", "a") as f:
@@ -147,12 +155,18 @@ def view_rapport(rapport_id):
     if not rapport:
         return jsonify({"message": "Rapport non trouvé"}), 404
         
-    if not rapport.storage_path or not os.path.exists(rapport.storage_path):
+    if not rapport.storage_path:
         return jsonify({"message": "Fichier PDF introuvable sur le serveur"}), 404
+    
+    # Convert relative path to absolute path
+    file_path = os.path.join(os.getcwd(), rapport.storage_path)
+    
+    if not os.path.exists(file_path):
+        return jsonify({"message": f"Fichier PDF introuvable: {file_path}"}), 404
         
     try:
         return send_file(
-            rapport.storage_path,
+            file_path,
             mimetype='application/pdf',
             as_attachment=False,
             download_name=rapport.filename

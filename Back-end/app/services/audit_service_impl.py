@@ -58,6 +58,31 @@ def analyze_pdf(pdf_path):
     """
     if not os.path.exists(pdf_path):
         raise FileNotFoundError(f"PDF not found at {pdf_path}")
+    
+    # Validate file extension
+    file_extension = os.path.splitext(pdf_path)[1].lower()
+    if file_extension != '.pdf':
+        print(f"❌ Fichier non-PDF détecté: {pdf_path} (extension: {file_extension})")
+        return {
+            "summary": f"⚠️ Le fichier soumis n'est pas un PDF (format détecté: {file_extension}). Veuillez soumettre un document PDF.",
+            "layout_validation": {
+                "score": "0/5", 
+                "issues": [
+                    f"Format de fichier invalide: {file_extension}",
+                    "Seuls les fichiers PDF sont acceptés pour l'audit automatique.",
+                    "Veuillez convertir votre document en PDF avant de le soumettre."
+                ]
+            },
+            "content_validation": {
+                "score": "0/5", 
+                "strengths": [], 
+                "weaknesses": [
+                    "Format de fichier non supporté",
+                    "Le document doit être au format PDF pour être analysé"
+                ], 
+                "general_comment": "Merci de soumettre un fichier PDF pour permettre l'analyse automatique."
+            }
+        }
 
     try:
         gemini_file = upload_to_gemini(pdf_path)

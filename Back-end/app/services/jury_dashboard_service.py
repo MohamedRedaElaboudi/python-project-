@@ -20,11 +20,14 @@ def get_dashboard_stats(user_id):
     juries = Jury.query.filter_by(teacher_id=user_id).all()
     print(f"DEBUG: Found {len(juries)} jury assignments for teacher #{user_id}")
     
-    # Get unique rapport IDs from soutenances
+    # Get unique rapport IDs via student_id (since soutenance.rapport_id is NULL)
     rapport_ids = set()
     for jury in juries:
-        if jury.soutenance and jury.soutenance.rapport_id:
-            rapport_ids.add(jury.soutenance.rapport_id)
+        if jury.soutenance and jury.soutenance.student_id:
+            # Find rapports for this student
+            rapports = Rapport.query.filter_by(auteur_id=jury.soutenance.student_id).all()
+            for rapport in rapports:
+                rapport_ids.add(rapport.id)
     
     total_reports = len(rapport_ids)
     print(f"DEBUG: Total unique reports: {total_reports}")
@@ -65,13 +68,16 @@ def get_upcoming_soutenances(user_id):
 
     results = []
     for s in soutenances:
-        # Check if report file exists physically
-        if s.rapport and s.rapport.storage_path:
-             if not os.path.exists(s.rapport.storage_path):
-                 continue
-        else:
-             # User asked to "afficher exactement les rapport exist", so skip if no file.
-             continue
+        # Find rapport via student_id instead of direct link
+        rapport = None
+        if s.student_id:
+            rapport = Rapport.query.filter_by(auteur_id=s.student_id).first()
+        
+        # Check if report file exists physically (if rapport found)
+        if rapport and rapport.storage_path:
+            file_path = os.path.join(os.getcwd(), rapport.storage_path)
+            if not os.path.exists(file_path):
+                rapport = None  # Mark as no rapport if file doesn't exist
         
         # Get student info safely
         student_name = "N/A"
@@ -84,14 +90,14 @@ def get_upcoming_soutenances(user_id):
 
         results.append({
             "id": s.id,
-            "title": s.rapport.titre if s.rapport else "Sans Rapport",
+            "title": rapport.titre if rapport else "Sans Rapport",
             "student": student_name,
             "filiere": filiere,
             "date": s.date_soutenance.isoformat(),
             "time": s.heure_debut.isoformat(),
             "salle": s.salle.name if s.salle else "N/A",
-            "storage_path": s.rapport.storage_path if s.rapport else None,
-            "filename": s.rapport.filename if s.rapport else None
+            "storage_path": rapport.storage_path if rapport else None,
+            "filename": rapport.filename if rapport else None
         })
     
     return results
@@ -104,13 +110,14 @@ def get_assigned_reports(user_id):
     print(f"DEBUG: get_assigned_reports called for user_id={user_id}")
     print(f"{'='*60}")
     
-    # Determine the columns to select
+    # Modified query to join via student_id instead of rapport_id
+    # since soutenances.rapport_id can be NULL
     results = db.session.query(
         Rapport,
         Soutenance,
         Evaluation
     ).join(
-        Soutenance, Soutenance.rapport_id == Rapport.id
+        Soutenance, Soutenance.student_id == Rapport.auteur_id
     ).join(
         Jury, Jury.soutenance_id == Soutenance.id
     ).outerjoin(
@@ -182,9 +189,14 @@ def get_evaluation_details(user_id, rapport_id):
     Get detailed evaluation data including criteria grades.
     If evaluation doesn't exist, create a pending one.
     """
-    # First, find the soutenance for this rapport
+    # First, get the rapport to find the student
+    rapport = Rapport.query.get(rapport_id)
+    if not rapport:
+        return None, "Report not found"
+    
+    # Find the soutenance for this student
     soutenance = db.session.query(Soutenance).filter(
-        Soutenance.rapport_id == rapport_id
+        Soutenance.student_id == rapport.auteur_id
     ).first()
     
     if not soutenance:
@@ -209,6 +221,7 @@ def get_evaluation_details(user_id, rapport_id):
         # Create pending evaluation
         evaluation = Evaluation(
             soutenance_id=soutenance.id,
+            rapport_id=rapport_id,
             jury_id=user_id,
             statut='pending'
         )
@@ -233,9 +246,6 @@ def get_evaluation_details(user_id, rapport_id):
             "comment": grade.comment if grade else ""
         })
     
-    # Get rapport_id through soutenance
-    rapport_id = evaluation.soutenance.rapport_id if evaluation.soutenance else None
-
     return {
         "id": evaluation.id,
         "rapport_id": rapport_id,

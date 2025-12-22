@@ -38,8 +38,16 @@ def create_app():
 
     db.init_app(app)
     # Autoriser React à accéder au backend
-    # Autoriser React à accéder au backend (Allowing all for dev to fix CORS issues)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # Enhanced CORS configuration for blob/binary responses (PDF files)
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Disposition", "Content-Type"],
+            "supports_credentials": True
+        }
+    })
 
     # Enregistrer les blueprints
     app.register_blueprint(salles_bp)
