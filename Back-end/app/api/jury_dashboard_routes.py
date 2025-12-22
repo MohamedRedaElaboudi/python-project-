@@ -151,6 +151,8 @@ def view_rapport(rapport_id):
     # Re-using get_evaluation_details logic partially or just direct query
     
     from app.models import Rapport
+    from flask import make_response
+    
     rapport = Rapport.query.get(rapport_id)
     if not rapport:
         return jsonify({"message": "Rapport non trouvé"}), 404
@@ -165,12 +167,22 @@ def view_rapport(rapport_id):
         return jsonify({"message": f"Fichier PDF introuvable: {file_path}"}), 404
         
     try:
-        return send_file(
-            file_path,
-            mimetype='application/pdf',
-            as_attachment=False,
-            download_name=rapport.filename
+        # Create response with send_file
+        response = make_response(
+            send_file(
+                file_path,
+                mimetype='application/pdf',
+                as_attachment=False,
+                download_name=rapport.filename
+            )
         )
+        
+        # Add CORS headers explicitly
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Expose-Headers'] = 'Content-Disposition, Content-Type, Content-Length'
+        
+        return response
     except Exception as e:
         print(f"Error serving PDF: {e}")
         return jsonify({"message": "Erreur lors de la lecture du fichier"}), 500

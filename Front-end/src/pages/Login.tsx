@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../api/auth";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useColorMode } from "src/hooks/use-color-mode";
 
 import {
   Box,
@@ -18,6 +19,12 @@ import LockIcon from "@mui/icons-material/Lock";
 export default function Login() {
   const nav = useNavigate();
   const location = useLocation();
+  const { setColorMode } = useColorMode();
+
+  // 🔥 Forcer le mode light sur la page de login
+  useEffect(() => {
+    setColorMode('light');
+  }, [setColorMode]);
 
   // 🔥 rôle attendu depuis ChooseRole
   const expectedRole = location.state?.role; // "student" | "staff" | undefined

@@ -37,15 +37,23 @@ def create_app():
 
 
     db.init_app(app)
-    # Autoriser React à accéder au backend
     # Enhanced CORS configuration for blob/binary responses (PDF files)
+    # Note: When using credentials, we must specify explicit origins (not *)
     CORS(app, resources={
         r"/api/*": {
-            "origins": "*",
+            "origins": [
+                "http://localhost:3000", 
+                "http://localhost:3039",
+                "http://localhost:5173", 
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3039", 
+                "http://127.0.0.1:5173"
+            ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
-            "expose_headers": ["Content-Disposition", "Content-Type"],
-            "supports_credentials": True
+            "expose_headers": ["Content-Disposition", "Content-Type", "Content-Length"],
+            "supports_credentials": True,
+            "max_age": 3600
         }
     })
 

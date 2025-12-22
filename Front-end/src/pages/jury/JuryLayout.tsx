@@ -129,7 +129,7 @@ export default function JuryLayout() {
             zIndex: 1,
           }}
         >
-          ⚖️ Jury Espace
+          Espace Jury
         </Typography>
         <Typography
           variant="caption"
@@ -303,7 +303,7 @@ export default function JuryLayout() {
                 display: { xs: 'none', sm: 'block' },
               }}
             >
-              {mode === 'dark' ? 'Mode Sombre' : 'Mode Clair'}
+              {mode === 'dark' ? '' : ''}
             </Typography>
             <IconButton
               onClick={toggleMode}
