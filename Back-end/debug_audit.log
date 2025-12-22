@@ -321,3 +321,7 @@ Exists: True
 ERROR in audit_report: name 'Rapport' is not defined
 Attempting audit for rapport: C:\Users\21261\python-project-\Back-end\app\uploads\107bbb222bc64ee7a9b329d9c04c84e0_python.pdf
 Exists: True
+Attempting audit for rapport: C:\Users\21261\python-project-\Back-end\app\uploads\107bbb222bc64ee7a9b329d9c04c84e0_python.pdf
+Exists: True
+Attempting audit for rapport: C:\Users\21261\python-project-\Back-end\app\uploads\107bbb222bc64ee7a9b329d9c04c84e0_python.pdf
+Exists: True

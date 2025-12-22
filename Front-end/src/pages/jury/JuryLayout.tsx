@@ -21,8 +21,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ArticleIcon from '@mui/icons-material/Article';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material/styles';
 import { varAlpha } from 'minimal-shared/utils';
+import { useColorMode } from 'src/hooks/use-color-mode';
 
 const DRAWER_WIDTH = 280;
 
@@ -34,6 +37,7 @@ export default function JuryLayout() {
   const location = useLocation();
   const [openNav, setOpenNav] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const { mode, toggleMode } = useColorMode();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -271,6 +275,52 @@ export default function JuryLayout() {
           </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
+
+          {/* Theme Toggle with Container */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 2,
+              bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+              border: `1px solid ${varAlpha(theme.vars.palette.primary.mainChannel, 0.12)}`,
+              mr: 1.5,
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.12),
+                borderColor: varAlpha(theme.vars.palette.primary.mainChannel, 0.2),
+              },
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 600,
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
+              {mode === 'dark' ? 'Mode Sombre' : 'Mode Clair'}
+            </Typography>
+            <IconButton
+              onClick={toggleMode}
+              sx={{
+                color: 'primary.main',
+                p: 0.5,
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'rotate(180deg)',
+                  bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16),
+                },
+              }}
+              size="small"
+            >
+              {mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+            </IconButton>
+          </Box>
 
           {/* Notifications */}
           <IconButton
